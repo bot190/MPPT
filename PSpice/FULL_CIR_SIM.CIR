@@ -1,0 +1,384 @@
+FULL_CIR_SIM_V4_2
+**********************************************************************************************************
+* SOLAR MAX. POWER POINT TRACKER MQP
+* JOHNATHAN ADAMS, BENJAMIN BEAUREGARD, ANDREW FLYNN
+* ADVISOR: PROFESSOR ALEXANDER EMANUEL
+* A, B, C TERM 2016-2017
+* WORCESTER POLYTECHNIC INSTITUTE
+**********************************************************************************************************
+* DOCUMENT: FULL_CIR_SIM_V4_0.CIR
+* DATE CREATED: 10/12/16
+* LAST REVISED: 10/18/16
+* REVISION NOTES:
+*	v1_0: (10/12/16) created initial file with SOLAR CELL SIMULATOR, INPUT FILTER, and BUCK CONVERTER
+*
+*	v1_1: (10/12/16) corrected polarity of VPWM, swapped polarity of RLOAD for current reference,
+*		  changed value of RLOAD from 1k to 100, bypassed SOLAR CELL SIM by connecting direct to VSOLAR
+*		  (see comments throughout indicating node swaps)
+*
+*	v2_0: (10/13/16) put each part of circuit (solar sim, filter, buck) in its own subcircuit and added
+*		  "MAIN" section for connecting these primary subcircuits together. RLOAD also moved to "MAIN"
+*
+*	v2_1: (10/14/16) changed ground reference (node 0) from solar panel side to output side, changed load
+*		  to 5 ohms to simulate higher current draw through circuit
+*
+*   v4_0: (10/14/16) removed two stages from filter. Added second filter for output of MPPT buck converter
+*		  added second buck converter for constant voltage output. Skipped version numbers to allow PSpice
+*		  file updates to reflect MULTISIM circuit diagram file updates
+*
+*   v4_1: (10/17/16) changed vulse voltage source in OUT_BUCK to a pulse voltage source controlling a 
+*		  voltage-controlled switch to simulate BJT in micro shorting gate of PMOS to GND. Also flipped
+*		  the OUT_BUCK PMOS so it actually works (Drain and Source were flipped when first implimented).
+*		  OUT_BUCK PMOS driver circuit still needs work, convergence issues w/ large RQ3 values and issues
+*		  with shutting off the PMOS
+*
+*	v4_2: (10/18/16) changed driver circuit for OUT_BUCK PMOS to a CMOS driver. Moved PWM sources to main
+*		  for ease of adjustment for future simulations. Further work needs to be done on the PMOS driver.
+*		  Started looking into an integrated solution (high-side gate driver, such as UC3709 but no model)
+*
+**********************************************************************************************************
+* MAIN: FOR CONNECTING PRIMARY SUBCIRCUITS TOGETHER
+**********************************************************************************************************
+XSOLAR 1 2 SOLAR_SIM
+XFILTER_1 1 3 2 FILTER_1
+VPWM1 4 2 PULSE(0 3.3 0 1n 1n 0.01m 0.02m) 
+XMPPT_BUCK 3 2 4 5 0 MPPT_BUCK
+XFILTER_2 5 6 0 FILTER_2
+VPWM2 7 0 PULSE(0 3.3 0 1n 1n 0.005m 0.02m)
+XOUT_BUCK 6 7 8 0 OUT_BUCK
+RLOAD 8 0 100
+
+**********************************************************************************************************
+* SOLAR CELL SIMULATOR
+* OUTPUT NODES TO BE CONNECTED TO FILTER
+* GND_REF TO BE CONNECTED TO NODE 0
+**********************************************************************************************************
+.SUBCKT SOLAR_SIM P_OUT N_OUT
+    VSOLAR 2 1 36.7
+    D1 2 P_OUT D1N4004
+    * MODEL BY SYMMETRY DESIGN SYSTEMS
+    .MODEL D1N4004 D
+            +IS=5.31656e-08 RS=0.0392384 N=2 EG=0.6
+            +XTI=0.05 BV=400 IBV=5e-08 CJO=1e-11
+            +VJ=0.7 M=0.5 FC=0.5 TT=1e-09
+            +KF=0 AF=1
+    RSOLAR1 P_OUT 3 10K
+    * RSOLAR1 AND RSOLAR2 MAKE UP 50% 10K POT TO IRF1310 GATE
+    RSOLAR2 3 4 5K
+    RSOLAR3 4 1 5K
+    XQ1 N_OUT 4 1 IRF1310
+.ENDS
+* END SOLAR_SIM
+
+.SUBCKT IRF1310 1 2 3
+	*MODEL BY SYMMETRY DESIGN SYSTEMS
+	* External Node Designations
+	* Node 1 -> Drain
+	* Node 2 -> Gate
+	* Node 3 -> Source
+	M1 9 7 8 8 MM L=100u W=100u
+	* Default values used in MM:
+	* The voltage-dependent capacitances are
+	* not included. Other default values are:
+	* RS=0 RD=0 LD=0 CBD=0 CBS=0 CGBO=0
+	.MODEL MM NMOS LEVEL=1 IS=1e-32
+	+ VTO=3.63122 LAMBDA=0 KP=35.017
+	+ CGSO=2.41576e-05 CGDO=2.63501e-07
+	RS 8 3 0.0273231
+	D1 3 1 MD
+	.MODEL MD D IS=1.52845e-09 RS=0.00743652 N=1.2982 BV=100
+	+ IBV=0.00025 EG=1 XTI=3.65242 TT=2.00001e-05
+	+ CJO=2.72404e-09 VJ=0.800983 M=0.501737 FC=0.1
+	RDS 3 1 4e+06
+	RD 9 1 0.0001
+	RG 2 7 6
+	D2 4 5 MD1
+	* Default values used in MD1:
+	* RS=0 EG=1.11 XTI=3.0 TT=0
+	* BV=infinite IBV=1mA
+	.MODEL MD1 D IS=1e-32 N=50
+	+ CJO=2.2506e-09 VJ=0.5 M=0.793881 FC=1e-08
+	D3 0 5 MD2
+	* Default values used in MD2:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* BV=infinite IBV=1mA
+	.MODEL MD2 D IS=1e-10 N=0.412074 RS=3e-06
+	RL 5 10 1
+	FI2 7 9 VFI2 -1
+	VFI2 4 0 0
+	EV16 10 0 9 7 1
+	CAP 11 10 3.81086e-09
+	FI1 7 9 VFI1 -1
+	VFI1 11 6 0
+	RCAP 6 10 1
+	D4 0 6 MD3
+	* Default values used in MD3:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* RS=0 BV=infinite IBV=1mA
+	.MODEL MD3 D IS=1e-10 N=0.412074
+.ENDS
+* END IRF1310
+
+**********************************************************************************************************
+* FILTER 1
+* INPUT NODES TO BE CONNECTED TO SOLAR CELL SIMULATOR OUTPUT
+* OUTPUT NODES TO BE CONNECTED TO BUCK CONVERTER INPUT
+**********************************************************************************************************
+.SUBCKT FILTER_1 P_IN P_OUT GND
+	XFLTR1 P_IN 1 GND FLTR_STAGE
+	XFLTR2 1 2 GND FLTR_STAGE
+	LFLTR_FINAL 2 3 1m
+	RIND_FLTR_FINAL 3 P_OUT 10m
+	CFLTR_FINAL 4 GND 33n
+	RCAP_FLTR_FINAL P_OUT 4 8m
+.ENDS
+*END FILTER_1
+
+.SUBCKT FLTR_STAGE 1 2 3
+    * External node designations:
+    * Node 1 -> stage input
+    * Node 2 -> stage output
+    * Node 3 -> ground
+    L 1 4 1m
+    R_IND 4 2 10m
+    C 5 3 100n
+    R_CAP 5 2 8m
+.ENDS
+* END FLTR_STAGE
+
+**********************************************************************************************************
+* MPPT BUCK CONVERTER
+* INPUT NODES TO BE CONNECTED TO FILTER OUTPUT
+* OUTPUT NODES TO BE CONNECTED TO LOAD (IN MAIN)
+**********************************************************************************************************
+.SUBCKT MPPT_BUCK P_IN N_IN SIG_IN P_OUT N_OUT
+	XQ2 N_OUT SIG_IN N_IN DMT6009LCT
+	D2 N_OUT P_IN MBR1060
+	* MODEL BY SYMMETRY DESIGN SYSTEMS
+	.MODEL MBR1060 D
+        +IS=0.000132385 RS=0.0122186 N=2 EG=0.828762
+        +XTI=3.80757 BV=60 IBV=0.0001 CJO=1e-11
+        +VJ=0.7 M=0.5 FC=0.5 TT=0
+        +KF=0 AF=1
+	LOUT_FLTR P_IN 1 1m
+	RIND_OUT_FLTR 1 P_OUT 137m
+	COUT_FLTR 2 N_OUT 15u
+	RCAP_OUT_FLTR P_OUT 2 8m
+.ENDS
+* END MPPT_BUCK
+
+.SUBCKT DMT6009LCT 1 2 3 
+		* MODEL BY DIODES INC.
+        * External node designation:
+        * Node 1 -> Drain
+        * Node 2 -> Gate
+        * Node 3 -> Source 
+        M1 5 6 7 7 NMOS L = 1E-006 W = 1E-006 
+        RD 1 5 0.006099 
+        RS 3 7 1E-008 
+        RG 2 6 5.71 
+        CGS 6 7 2.016E-009 
+        EGD 12 0 6 5 1 
+        VFB 14 0 0 
+        FFB 6 5 VFB 1 
+        CGD 13 14 1E-009 
+        R1 13 0 1 
+        D1 12 13 DLIM 
+        DDG 15 14 DCGD 
+        R2 12 15 1 
+        D2 15 0 DLIM 
+        DSD 7 1 DSUB 
+        .MODEL NMOS NMOS LEVEL = 3 VMAX = 8E+005 ETA = 0.001 VTO = 2.086 
+        + TOX = 6E-008 NSUB = 1E+016 KP = 136.4 U0 = 400 KAPPA = 4.441E-010 
+        .MODEL DCGD D CJO = 4.367E-010 VJ = 1 M = 0.5797 
+        .MODEL DSUB D IS = 2.239E-010 N = 1.183 RS = 0.005972 BV = 67 CJO = 8.953E-010 VJ = 1 M = 0.201 
+        .MODEL DLIM D IS = 0.0001 
+.ENDS
+* END DMT6009LCT 
+
+**********************************************************************************************************
+* FILTER 2
+* INPUT NODES TO BE CONNECTED TO MPPT BUCK CONVERTER OUTPUT
+* OUTPUT NODES TO BE CONNECTED TO OUTPUT BUCK CONVERTER INPUT
+* NOTE: USES "FLTR_STAGE" SUBCIRCUIT FROM FILTER 1
+**********************************************************************************************************
+.SUBCKT FILTER_2 P_IN P_OUT GND
+	XFLTR1 P_IN 1 GND FLTR_STAGE
+	XFLTR2 1 2 GND FLTR_STAGE
+	LFLTR_FINAL 2 3 1m
+	RIND_FLTR_FINAL 3 P_OUT 10m
+	CFLTR_FINAL 4 GND 33n
+	RCAP_FLTR_FINAL P_OUT 4 8m
+.ENDS
+*END FILTER_2
+
+**********************************************************************************************************
+* MPPT BUCK CONVERTER
+* P_IN AND GND NODES TO BE CONNECTED TO FILTER_2 OUTPUT
+* SIG_IN NODE TO BE CONNECTED TO PULSE VOLTAGE SOURCE IN MAIN FOR PWM
+* OUTPUT NODES TO BE CONNECTED TO LOAD (IN MAIN)
+**********************************************************************************************************
+.SUBCKT OUT_BUCK P_IN SIG_IN P_OUT GND
+	XU1 SIG_IN P_IN SIG_IN 1 GND 1 ntgd4167c
+	XQ3 2 1 P_IN IPP80P03P4L_04_L0
+	D3 GND 2 MBR1060_2
+	* MODEL BY SYMMETRY DESIGN SYSTEMS
+	.MODEL MBR1060_2 D
+        +IS=0.000132385 RS=0.0122186 N=2 EG=0.828762
+        +XTI=3.80757 BV=60 IBV=0.0001 CJO=1e-11
+        +VJ=0.7 M=0.5 FC=0.5 TT=0
+        +KF=0 AF=1
+	LOUT_FLTR 2 3 1m
+	RIND_OUT_FLTR 3 P_OUT 137m
+	COUT_FLTR 4 GND 15u
+	RCAP_OUT_FLTR P_OUT 4 8m
+.ENDS
+*ENDS OUT_BUCK
+
+.SUBCKT IPP80P03P4L_04_L0  drain  gate  source
+	* MODEL PROVIDED BY INFINEON
+	Lg     gate  g1    4n
+	Ld     drain d1    2.5n
+	Ls     source s1   2n
+	Rs      s1    s2   1.03m
+	Rg     g1    g2     7.3
+	M1      d2    g2    s2    s2    DMOS    L=1u   W=1u
+	.MODEL DMOS PMOS ( KP= 312.3  VTO=-2.52  THETA=0  VMAX=1.5e5  ETA=0.012  LEVEL=3)
+	Rd     d1    d2    2.29m TC=5m
+	Dbd     d2    s2    Dbt
+	.MODEL     Dbt    D(BV=38   M=0.25  CJO=7.42n  VJ=0.9V)
+	Dbody   21   s2    DBODY
+	.MODEL DBODY  D(IS=599.2p  N=1.24  RS=0.06u  EG=1.12  TT=3n)
+	Rdiode  d1  21    0.71m TC=10m
+	.MODEL   sw    PMOS(VTO=0  KP=10   LEVEL=1)
+	Maux      g2   c    a    a   sw
+	Maux2     b    d    g2    g2   sw
+	Eaux      c    a    d2    g2   1
+	Eaux2     d    g2   d2    g2   -1
+	Cox       b    d2   3.54n
+	.MODEL     DGD    D(M=1.2   CJO=3.54n   VJ=0.5)
+	Rpar      b    d2   1Meg
+	Dgd       d2   a    DGD
+	Rpar2     d2   a    10Meg
+	Cgs     g2    s2    8.61n
+.ENDS
+*END IPP80P03P4L_04_L0
+
+.SUBCKT ntgd4167c 1 2 3 4 5 6
+	* Model by ON Discrete Eval Lab
+	* External Node Designations
+	* Node 1 N-Gate
+	* Node 2 P-Source
+	* Node 3 P-Gate
+	* Node 4 P-Drain
+	* Node 5 N-Source
+	* Node 6 N-Drain
+	XN 6 1 5 ntgd4167c-n
+	XP 4 3 2 ntgd4167c-p
+.ENDS
+*ENDS ntgd4167c
+
+.SUBCKT ntgd4167c-n 1 2 3
+	* MODEL BY SYMMETRY DESIGN SYSTEMS
+	* External Node Designations
+	* Node 1 -&gt; Drain
+	* Node 2 -&gt; Gate
+	* Node 3 -&gt; Source
+	M1 9 7 8 8 MM L=100u W=100u
+	* Default values used in MM:
+	* The voltage-dependent capacitances are
+	* not included. Other default values are:
+	* RS=0 RD=0 LD=0 CBD=0 CBS=0 CGBO=0
+	.MODEL MM NMOS LEVEL=1 IS=1e-32
+	+VTO=1.27274 LAMBDA=0 KP=64.1137
+	+CGSO=2.69006e-06 CGDO=2.30519e-07
+	RS 8 3 0.0422987
+	D1 3 1 MD
+	.MODEL MD D IS=8.16695e-07 RS=0.0226012 N=1.91277 BV=30
+	+IBV=0.00025 EG=1.00871 XTI=0.646492 TT=2.5e-09
+	+CJO=6.59416e-11 VJ=3.22293 M=0.638826 FC=0.5
+	RDS 3 1 3e+08
+	RD 9 1 0.0103794
+	RG 2 7 10.0165
+	D2 4 5 MD1
+	* Default values used in MD1:
+	* RS=0 EG=1.11 XTI=3.0 TT=0
+	* BV=infinite IBV=1mA
+	.MODEL MD1 D IS=1e-32 N=50
+	+CJO=9.34155e-11 VJ=0.623557 M=0.9 FC=1e-08
+	D3 0 5 MD2
+	* Default values used in MD2:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* BV=infinite IBV=1mA
+	.MODEL MD2 D IS=1e-10 N=0.401325 RS=3.00005e-06
+	RL 5 10 1
+	FI2 7 9 VFI2 -1
+	VFI2 4 0 0
+	EV16 10 0 9 7 1
+	CAP 11 10 4.37016e-10
+	FI1 7 9 VFI1 -1
+	VFI1 11 6 0
+	RCAP 6 10 1
+	D4 0 6 MD3
+	* Default values used in MD3:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* RS=0 BV=infinite IBV=1mA
+	.MODEL MD3 D IS=1e-10 N=0.401325
+.ENDS
+*ENDS ntgd4167c-n
+
+.SUBCKT ntgd4167c-p 1 2 3
+	* MODEL BY SYMMETRY DESIGN SYSTEMS
+	* External Node Designations
+	* Node 1 -&gt; Drain
+	* Node 2 -&gt; Gate
+	* Node 3 -&gt; Source
+	M1 9 7 8 8 MM L=100u W=100u
+	* Default values used in MM:
+	* The voltage-dependent capacitances are
+	* not included. Other default values are:
+	* RS=0 RD=0 LD=0 CBD=0 CBS=0 CGBO=0
+	.MODEL MM PMOS LEVEL=1 IS=1e-32
+	+VTO=-1.46991 LAMBDA=0 KP=18.2289
+	+CGSO=3.91812e-06 CGDO=1.00142e-11
+	RS 8 3 0.076879
+	D1 1 3 MD
+	.MODEL MD D IS=3.8386e-09 RS=0.0310025 N=1.5 BV=30
+	+IBV=0.00025 EG=1.01717 XTI=4 TT=2.5e-09
+	+CJO=1.13647e-10 VJ=0.5 M=0.449128 FC=0.5
+	RDS 3 1 3e+08
+	RD 9 1 0.038391
+	RG 2 7 7.48098
+	D2 5 4 MD1
+	* Default values used in MD1:
+	* RS=0 EG=1.11 XTI=3.0 TT=0
+	* BV=infinite IBV=1mA
+	.MODEL MD1 D IS=1e-32 N=50
+	+CJO=7.49904e-11 VJ=0.595519 M=0.3 FC=1e-08
+	D3 5 0 MD2
+	* Default values used in MD2:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* BV=infinite IBV=1mA
+	.MODEL MD2 D IS=1e-10 N=0.400006 RS=3e-06
+	RL 5 10 1
+	FI2 7 9 VFI2 -1
+	VFI2 4 0 0
+	EV16 10 0 9 7 1
+	CAP 11 10 3.91886e-10
+	FI1 7 9 VFI1 -1
+	VFI1 11 6 0
+	RCAP 6 10 1
+	D4 6 0 MD3
+	* Default values used in MD3:
+	* EG=1.11 XTI=3.0 TT=0 CJO=0
+	* RS=0 BV=infinite IBV=1mA
+	.MODEL MD3 D IS=1e-10 N=0.400006
+.ENDS
+*ENDS ntgd4167c-p
+
+**********************************************************************************************************
+* SIMULATION CONFIGURATION
+**********************************************************************************************************
+.PROBE
+.TRAN 50m 50m 0u 500n UIC
+.END 
