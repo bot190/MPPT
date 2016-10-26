@@ -1,0 +1,1 @@
+"./beta.obj" "./main.obj" "./perturbobserve.obj" "./sweep.obj" "../lnk_msp430f2012.cmd" -llibc.a 
