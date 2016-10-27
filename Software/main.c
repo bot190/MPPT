@@ -22,9 +22,8 @@ int main(void) {
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
     //Set Clock/Timer
-    DCOCTL = 0b11100000;	//DCOx = 7, MODx = 0
-    BCSCTL1 |= 0b1111;		//RSELx = 15
-    BCSCTL1 &= 0b001111;	//DIVx = 0, clock divider = 1 (default)
+    DCOCTL = CALDCO_16MHZ;	// 16MHz calibrated clock
+    BCSCTL1 = CALBC1_16MHZ;
     BCSCTL2 = 0b00000000;	// MCLK & SMCLK from DCO, both divided by 1, DCO resistor internal
 
     //Set ADC
@@ -35,12 +34,16 @@ int main(void) {
 
     //Enable Individual Interrupts
 
-    BIS_SR(GIE);	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
+    //BIS_SR(GIE);	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
 
     //	Code Body
-    while(1){
+//    while(1){
     	//This is where the call to one of the MPPT algorithms goes... maybe?
-    }
+//    }
+
+	P1DIR |= BIT4;					// Set P1.0 and P1.4 to output direction
+	P1SEL |= BIT4;					// Set P1.4
+
 
 	return 0;
 }
