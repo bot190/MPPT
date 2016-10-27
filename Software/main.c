@@ -18,7 +18,15 @@
 
 int main(void) {
 
+	//	Configuration & Initialization
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
-	
+
+    BIS_SR(GIE);	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
+
+    //	Code Body
+    while(1){
+    	//This is where the call to one of the MPPT algorithms goes... maybe?
+    }
+
 	return 0;
 }
