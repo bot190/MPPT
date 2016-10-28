@@ -21,7 +21,7 @@ int main(void) {
 	//	Configuration & Initialization
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
 
-    //Set Clock/Timer
+    //Configure Clocks
     DCOCTL = CALDCO_16MHZ;	// 16MHz calibrated clock
     BCSCTL1 = CALBC1_16MHZ;
     BCSCTL2 = 0b00000000;	// MCLK & SMCLK from DCO, both divided by 1, DCO resistor internal
@@ -32,11 +32,29 @@ int main(void) {
     // P1.2 - O - Gate Drive 2nd MOSFET
     // P1.3 - I - MPPT Voltage
     // P1.4 - I - Output Voltage
+    // P1.5 - O - UNUSED
+    // P1.6 - O - UNUSED
+    // P1.7 - O - UNUSED
+    // P2.6 - O - UNUSED
+    // P2.7 - O - UNUSED
 
-    //Set GPIO
-    //Set ADC
+    //Configure GPIO
+    P1DIR = (BIT1 | BIT2);					// Set P1.1 and P1.2 to output direction
+    P1SEL = (BIT1 | BIT2);					// Set P1.1 and P1.2 to primary function
 
-    //Start Timers
+    // Configure unused pins
+    P1DIR |= (BIT5 | BIT6 | BIT7);
+    P1OUT |= (BIT5 | BIT6 | BIT7);
+    P2DIR = (BIT6 | BIT7);
+    P2OUT = 0x00;
+
+    //Configure ADC - Run on MCLK - 16MHz/4 = 4MHzx64 = 16uS
+    ADC10CTL0 = (SREF_0 | ADC10SHT_3 | ADC10ON | ADC10IE);		// Use Vcc and Vss, S&H Time: 64*ADC10CLKs, turn on ADC, enable interrupt
+    ADC10CTL1 = (ADC10SSEL_2 | ADC10DIV_3);						// Use MCLK/4
+    // Not using the DTC
+
+    //Configure Timers - SMCLK
+
     //Enable ADC's
 
     //Enable Individual Interrupts
@@ -48,8 +66,6 @@ int main(void) {
     	//This is where the call to one of the MPPT algorithms goes... maybe?
 //    }
 
-	P1DIR |= BIT4;					// Set P1.0 and P1.4 to output direction
-	P1SEL |= BIT4;					// Set P1.4 to it's primary function
 
 
 	return 0;
