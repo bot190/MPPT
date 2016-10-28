@@ -8,3 +8,5 @@ Software: Use CCS: [Download TI CCS](https://www.ti.com/licreg/docs/swlicexportc
 Simulation Software (PSpice) available on Hutt, Hertz remote desktops.
 
 In case we forget, ShareLaTeX has git integration.  Flynn has the required premium account.
+
+Flynn needs to learn how to use readme files.
