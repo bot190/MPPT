@@ -1,0 +1,221 @@
+<?xml version="1.0"?><DrDoc Type="BaseSymbolDocument"><LrsArr Type="PtrArray" S="3"><I0 Type="LayerInfo" LN="Border" D="0" Hd="0" V="1" A="0"><DS Type="ObjectsList" LS="1"><I0 Type="BoundaryBox" Sel="0" Vis="1" CBH="1" PFC="-1" PW="0" PS="5" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="45" Y="45"/><I1 Type="Point" X="540" Y="207"/></PtA></I0></DS></I0><I1 Type="LayerInfo" LN="Pins" D="0" Hd="0" V="1" A="0"><DS Type="ObjectsList" LS="0"/></I1><I2 Type="LayerInfo" LN="1 Draw Layer" D="0" Hd="1" V="1" A="1"><DS Type="ObjectsList" LS="30"><I0 Type="Rectangle" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="45" Y="207"/><I1 Type="Point" X="540" Y="45"/></PtA></I0><I1 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="213" Y="111"/><I1 Type="Point" X="540" Y="111"/></PtA></I1><I2 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="213" Y="135"/><I1 Type="Point" X="540" Y="135"/></PtA></I2><I3 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="45" Y="159"/><I1 Type="Point" X="213" Y="159"/></PtA></I3><I4 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="45" Y="183"/><I1 Type="Point" X="540" Y="183"/></PtA></I4><I5 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="378" Y="183"/><I1 Type="Point" X="378" Y="207"/></PtA></I5><I6 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="213" Y="45"/><I1 Type="Point" X="213" Y="207"/></PtA></I6><I7 Type="Text" Txt="Title:" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="117"/></PtA></I7><I8 Type="Text" Txt="Document No:" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="267" Y="141"/></PtA></I8><I9 Type="Text" Txt="Date:" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="61" Y="189"/></PtA></I9><I10 Type="Text" Txt="Sheet" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="387" Y="189"/></PtA></I10><I11 Type="Text" Txt="of" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="450" Y="189"/></PtA></I11><I12 Type="Text" Txt="Rev:" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="492" Y="141"/></PtA></I12><I13 Type="Text" Txt="Size:" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="222" Y="141"/></PtA></I13><I14 Type="TitleBlockTagText" TBTID="0" Txt="#TITLE" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="258" Y="117"/></PtA></I14><I15 Type="TitleBlockTagText" TBTID="5" Txt="#DOC_N" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="279" Y="162"/></PtA></I15><I16 Type="TitleBlockTagText" TBTID="6" Txt="#DATE" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="93" Y="189"/></PtA></I16><I17 Type="TitleBlockTagText" TBTID="7" Txt="#SN" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="429" Y="189"/></PtA></I17><I18 Type="TitleBlockTagText" TBTID="8" Txt="#TSN" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="471" Y="189"/></PtA></I18><I19 Type="TitleBlockTagText" TBTID="9" Txt="#REV" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="492" Y="162"/></PtA></I19><I20 Type="TitleBlockTagText" TBTID="10" Txt="#FMT" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="162"/></PtA></I20><I21 Type="Text" Txt="Worcester Polytechnic Institute" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="54"/></PtA></I21><I22 Type="Text" Txt="100 Institute Rd." H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="66"/></PtA></I22><I23 Type="Text" Txt="Worcester, MA 01609" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="78"/></PtA></I23><I24 Type="Text" Txt="Department of Electrical and Computer Engineering" H="8" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="228" Y="90"/></PtA></I24><I25 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="477" Y="135"/><I1 Type="Point" X="477" Y="183"/></PtA></I25><I26 Type="Line" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="2"><I0 Type="Point" X="258" Y="135"/><I1 Type="Point" X="258" Y="183"/></PtA></I26><I27 Type="Bitmap" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="48" Y="48"/></PtA><Bmap Type="AdvancedBitmap" FlRF="0"><BMPhdr Encoding="base64" DataLength="21">
+Qk0qJgAAAAAAADYEAAA=
+</BMPhdr><Bmp Encoding="base64" DataLength="13441">
+KAAAAKIAAAA1AAAAAQAIAAAAAAD0IQAAIy4AACMuAAAAAAAAAAAAAAAAAAAA
+AIAAAIAAAACAgACAAAAAgACAAICAAADAwMAAwNzAAPDKpgAAIEAAACBgAAAg
+gAAAIKAAACDAAAAg4AAAQAAAAEAgAABAQAAAQGAAAECAAABAoAAAQMAAAEDg
+AABgAAAAYCAAAGBAAABgYAAAYIAAAGCgAABgwAAAYOAAAIAAAACAIAAAgEAA
+AIBgAACAgAAAgKAAAIDAAACA4AAAoAAAAKAgAACgQAAAoGAAAKCAAACgoAAA
+oMAAAKDgAADAAAAAwCAAAMBAAADAYAAAwIAAAMCgAADAwAAAwOAAAOAAAADg
+IAAA4EAAAOBgAADggAAA4KAAAODAAADg4ABAAAAAQAAgAEAAQABAAGAAQACA
+AEAAoABAAMAAQADgAEAgAABAICAAQCBAAEAgYABAIIAAQCCgAEAgwABAIOAA
+QEAAAEBAIABAQEAAQEBgAEBAgABAQKAAQEDAAEBA4ABAYAAAQGAgAEBgQABA
+YGAAQGCAAEBgoABAYMAAQGDgAECAAABAgCAAQIBAAECAYABAgIAAQICgAECA
+wABAgOAAQKAAAECgIABAoEAAQKBgAECggABAoKAAQKDAAECg4ABAwAAAQMAg
+AEDAQABAwGAAQMCAAEDAoABAwMAAQMDgAEDgAABA4CAAQOBAAEDgYABA4IAA
+QOCgAEDgwABA4OAAgAAAAIAAIACAAEAAgABgAIAAgACAAKAAgADAAIAA4ACA
+IAAAgCAgAIAgQACAIGAAgCCAAIAgoACAIMAAgCDgAIBAAACAQCAAgEBAAIBA
+YACAQIAAgECgAIBAwACAQOAAgGAAAIBgIACAYEAAgGBgAIBggACAYKAAgGDA
+AIBg4ACAgAAAgIAgAICAQACAgGAAgICAAICAoACAgMAAgIDgAICgAACAoCAA
+gKBAAICgYACAoIAAgKCgAICgwACAoOAAgMAAAIDAIACAwEAAgMBgAIDAgACA
+wKAAgMDAAIDA4ACA4AAAgOAgAIDgQACA4GAAgOCAAIDgoACA4MAAgODgAMAA
+AADAACAAwABAAMAAYADAAIAAwACgAMAAwADAAOAAwCAAAMAgIADAIEAAwCBg
+AMAggADAIKAAwCDAAMAg4ADAQAAAwEAgAMBAQADAQGAAwECAAMBAoADAQMAA
+wEDgAMBgAADAYCAAwGBAAMBgYADAYIAAwGCgAMBgwADAYOAAwIAAAMCAIADA
+gEAAwIBgAMCAgADAgKAAwIDAAMCA4ADAoAAAwKAgAMCgQADAoGAAwKCAAMCg
+oADAoMAAwKDgAMDAAADAwCAAwMBAAMDAYADAwIAAwMCgAPD7/wCkoKAAgICA
+AAAA/wAA/wAAAP//AP8AAAD/AP8A//8AAP///wD/////////////////////
+///////29ggICAgICAj29v//////////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+//////////////8AAP/////////////////////29ggI952VVlZOTk5Wlp33
+9QgI9v//////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////wAA////
+///////////////2CAf3nk5GRkZGTkZGTkZGRkZGVqb1CPb/////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////AAD////////////////2CAelVkZG
+Rk7vRe/vn5/v706np05GRk6e9wj2////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+//////////8AAP//////////////9gemVkZGTk5ORv8N7++n76fvTpbvp0ZO
+RkZOnvcI9v//////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////wAA////////
+////9gj3lkZGRk5OTkZO/07v/5ZW9qdOB59OTk5OTkZGTqUI9v//////////
+////////////////////////////9vb2//////////////////////////b2
+9v//////////////////////////////////////////////////////////
+////////////////////////////AAD///////////YI905GRk6nn05ORk72
+Tk6fTkZWTk7v50ZOTp+nVk5GRp4I9v//////////////////////////////
+//////+Wlp/v///////////////////////2Vpaf9v//////////////////
+9vb29vb29vb29vb29vb29vb29v/////////////////29vb29vb29vb29vb2
+9vb29vYAAP/////////2CKZORk5OTu+nTk5ORk5GTk5WVk5ORk5ORk5On+dW
+Tk5ORlYH9v//////////////////////////////////9g1GRp//////////
+/////////////+8NRkbv//////////////////9WTk5OTk5OTk5OTk5OTk5O
+Tk7v/////////////////+9OTk5OTk5OTk5OTk5OTk5OTgAA////////9gim
+Rk6fTk5OTk5GRk5WpqYHCPeuBwf3plZOTkZOTk5OTpanRlYH9v//////////
+//////////////////////+nDk5GVvb/////////////////////TkZORp//
+/////////////////0YNRkZGRkZGRkZGRkZGRkYNDe//////////////////
+7w1GRkZGRkZGRkZGRkZGRkZGAAD///////YIpk5Op+9WRk5ORk6e7ggICAim
+T0+eCAkICO6eTkZGTkZOnv+fDlYI9v//////////////////////////////
+/05GTk5O7/////////////////////YNTk5GVvb/////////////////p5+W
+TkZOTk5OTk5OTkZOlp+f9v/////////////////vn59WTk5OTk5OTk5ORk6W
+n6cAAP//////CPdOTu/v7+9ORk6eBwgIBwcHnkYBAUZWBwcHBwgHpk5GVpbv
+B1ZeRp4I9v/////////////////////////////2DU5OTk6n////////////
+////////nw1OTk5O7//////////////////////2VkZOTk5OTk5Onu//////
+//////////////////////anTk5OTk5OTkZW7////wAA//////b3Tg6f7wfv
+r05O7ggIBwcI7k4OC1qjSg5GpggHBwgI7k5W7/ZODfanDp0I////////////
+/////////////////6cNTk5ORk72//////////////////9GTk5OTkan////
+///////////////////2TkZOTk5OTlb2////////////////////////////
+//+fRk5OTk5OTu//////AAD////2B5ZGnp+f76dGVvcIBwcHCAdORwFaCPaj
+CkdGpggHBwcIB1ZOVk6n7+9GRvf2////////////////////////////lkZO
+Tk5OTu//////////////////7w1OTk5ORpb2//////////////////////9W
+Rk5OTk5Olvb//////////////////////////////6dGTk5OTkZO7/////8A
+AP///wimTp/v75ZOVlbuCAcHBwgHTk6XCggIBwhbTJdGpgcHBwcIB5YNn+9W
+Tp9GVgj2//////////////////////////9GTk5OTk5Op///////////////
+//9WRk5OTk5GTvb//////////////////////5ZGTk5OTk6f////////////
+////////////////////50ZOTk5ORk7v/////wAA///2B1ZO756n70ZO7ggH
+BwcIB1ZW71VS/wcHCPcK71ZW9wcHBwcIB1ZOTk6n704O9wj/////////////
+////////////7w1OTk5OTkaW9v//////////////9kZOTk5OTk5G7///////
+////////////////nkZOTk5OTp/////////////////////////////////v
+Tk5OTk5GTvb/////AAD//wilRkafp6enTq4IBwcHBwdWVvbvTVEI96z1owvv
+76dO9wgHBwcIB0YO769ep0ZWCPb///////////////////////9WRk5OTk5O
+Tk7v//////////////+vDk5OTk5OTkZe//////////////////////+WRk5O
+Tk5On////////////////////////////////+9OTk5OTkZO9v////8AAP/2
+B1ZOp56fn06eCAcHBwcIpkbv9p9XAVNLC1MLTqfv71aeBwcHBwcIpg6v76fn
+Tkb3CP///////////////////////0ZOTk5OTk5ORqf//////////////1ZG
+Tk5OTk5OTk7//////////////////////5ZGTk5OTk6f////////////////
+////////////////705OTk5ORk72/////wAA//b3Rp/v76dOTgcIBwcHCO5O
+Vgien0aWnp6enp5OVu/vn0amBwcHBwcIVk6nlkanDlYI////////////////
+///////vDU5OTk5OTk5GXv/////////////2Rk5OTk5OTk5OTu//////////
+////////////lkZOTk5OTp/////////////////////////////////vTk5O
+Tk5GTvb/////AAD/CJ5Gp/bvn06eCAcHBwcHng6n9p9ORpan9vb2n05On+/v
+RlYHBwcHBwimRkZOnv+WRgf2/////////////////////1ZGTk5OTk5OTkZO
+7////////////15GTk5OTk5OVk5Gn/////////////////////+WRk5OTk5O
+n////////////////////////////////+9OTk5OTkZO9v////8AAP8ITg5G
+TqefTu4IBwcHB+5OTq+n7w1OTk6n9v/nRk5W7+9WRqYHBwcHBwdOTu/vp+8O
+pgj////////////////////2Tk5OTk5OTp6fRkan////////////Tk5OTk5O
+Tk7vTkZW9v///////////////////5ZGTk5OTk6f////////////////////
+////////////705OTk5ORk72/////wAA//VGTvbvVkZWBwcHBwcHnk4O7+9O
+Tk5GDQ1W//ZGTk6n705GngcHBwcHCJ5GTg0BDQ6eCP//////////////////
+/+9OTk5OTk5Gp+9ORpb2/////////+9OTk5OTk5GXvZWRk7v////////////
+////////lkZOTk5OTp/////////////////////////////////vTk5OTk5G
+Tvb/////AAD2pUbvplbvTqYIBwcHB+5ORp/vCFZORp72Vu/2Rk5OVu/vp0ZG
+rgcHBwcIB0ZO7/b2Vk4I////////////////////p0ZOTk5OTk7v9k5GTu//
+////////l05OTk5OTkbv/6dGRqf///////////////////+WRk5OTk5Op///
+/////////////////////////////+9OTk5OTkZO9v////8AAP+dRp9GTu9W
+rggHBwcHpk5ORp7vRk5Gp/b2/05GTk5On6dGTg6mBwcHBwcHTlbvTk5GTgcI
+//////////////////ZWRk5OTk5GVvb2n0ZGp/////////ZWTk5OTk5OTu//
+70ZGVvb//////////////////5ZGTk5OTk6W75+fn5+fp+/2////////////
+////////705OTk5ORk72/////wAACJZGTk5OTk4HBwcHBwdWRk5GVu9GTkZG
+RlbvnkZORk6nn0ZORlYHBwcHBweWRk5Gp+8NB/b/////////////////9k5O
+Tk5OTkae9v/vTkZW9v//////705OTk5OTkZW///2TkZO7///////////////
+////lkZOTk5OTk5GRkZGRkZGRk5W7//////////////////vTk5OTk5GTvb/
+////AAAIVk729vaWTgcHBwcHB6aenp6epp6enp6enp6enp6enp6enp6engcH
+BwcHCJ5G7/b2Bw3u9v/////////////////vRk5OTk5OTp5a9fZORk7v////
+//+fRk5OTk5ORq////aWRkbn//////////////////+WRk5OTk5OTkZGRkZG
+Tk5OTkZGTu///////////////+9OTk5OTkZO9v////8AAAhOV++e9pZOBwcH
+BwemTk5WTU1OTU1OTVZWVlZNTU5NTU1NVlZOpgcHBwcInkZGDU6nDvf2////
+/////////////15GTk5OTk5O7wj29pZGRqf/////9lZOTk5OTkZO9v///+8N
+Rpb2/////////////////5ZGTk5OTk5OVp6fnlZORk5OTk5GDZ//////////
+////705OTk5ORk72/////wAACE5GTkaWRlYHBwcHB6ZGRwFKU0sACktRC09O
+AQpTCgoKU0oBRkaeBwcHBwimRp+fDU5G9/b////////////////2Tk5OTk5O
+Tpb2////70ZGnvb///+nRk5OTk5ORp//////7w1GTu//////////////////
+lkZOTk5OTp7///////afRk5OTk5ODVb////////////vTk5OTk5GTvb/////
+AAAIVkafp1ZOVgcHBwcHnk5PC6P19kAIB/cKT04Bmgj1rKQIpEtORlYHBwcH
+CJ5G7/+e7w73CP///////////////+9GTk5OTk5On//////vRkZO7///9p9G
+Tk5OTk5G7//////2TkZO7/////////////////+WRk5OTk5Op/////////+n
+Rk5OTk5ORk7//////////+9OTk5OTkZO9v////8AAAhWTvbv9p9OBwcHBweW
+Rk8LpAf/QPYI9wpPTgGb9gf39/akS05GVgcHBwcInk6Wn/+nDu72////////
+////////n0ZOTk5OTkbv//////ZWRkav///vTkZOTk5OTk7///////+nRkaf
+/////////////////5ZGTk5OTk6f//////////+fRk5OTk5ODaf/////////
+705OTk5ORk72/////wAACFZOp5bvVk4HBwcHB5ZGTwujCP9A//b0Ck9OAZr2
+CPf39qxLTkZWBwcHBwdWRk5GTkZGB/b///////////////ZWRk5OTk5OTv//
+/////6dGRpb2/+9OTk5OTk5Glv///////+9GRk7v////////////////lkZO
+Tk5OTp////////////ZOTk5OTk5ORv/////////vTk5OTk5GTvb/////AAD2
+nUZGDg0OTvcIBwcHlkZPRFJbrACrm1JDT05FUVujWlujUkxORk4HBwcHB0ae
+/+/vTk4HCP//////////////705OTk5OTk4O////////705GRu/2VkZOTk5O
+Tg32////////B05GTu////////////////+WRk5OTk5On////////////59G
+Tk5OTk5Gp////////+9OTk5OTkZO9v////8AAPalRu9elu9OpggHBweWRk5O
+RkYBRgEORkZODkZGRgENDQ5GTk5GTgcHBwgHRg0Hr59OTgj/////////////
+//+nRk5OTk5ODaf////////2VkZO7/ZOTk5OTk5GRv/////////2lkZOn/b/
+/////////////5ZGTk5OTk6f////////////CA1OTk5OTkaW////////705O
+Tk5ORk72/////wAA//VGn/8IVg5WBwcHB55OVpaWlpaWlpaWnggJppZWlpaW
+lpZWlk6WBwcHCJ1G71/2nw2eCP//////////////9k5GTk5OTk5G////////
+//+nRk5Wn05OTk5OTg3v//////////+nRkZWB///////////////lkZOTk5O
+Tp/////////////2Rk5OTk5OTkb2///////vTk5OTk5GTvb/////AAD/CE5W
+nw1OVk7uCAcHBwgICAgICAgICAj/CAj29ggICAgICAgICAcHBwcHTkaWn5/v
+RqYI///////////////vTk5OTk5ORk7//////////+9OTk5OTk5OTk5ORvb/
+/////////+9GRk7v//////////////+WRk5OTk5On/////////////ZORk5O
+Tk5ORu///////+9OTk5OTkZO9v////8AAP8Ing5Op+/vTp4IBwcHBwcICAgH
+Bwf29vel96QI/wgHBwcICAcHBwcHCKZGl++fVg5OB////////////////+9O
+Tk5OTk4Op///////////CFZGTk5OTk5OTkZW////////////705GTqf2////
+/////////5ZGTk5OTk6f////////////9lZGTk5OTk5G7///////705OTk5O
+Rk72/////wAA//b3Rp/275+fTgcIBwcH9gf3BwgIB/8Im1ubUgf/9gcIB/ft
+CAcHBwcHVkZOlu/vDpYI////////////////nkZOTk5OTg72////////////
+n0ZOTk5OTk5ODe/////////////2n0ZGVvb/////////////lkZOTk5OTp//
+///////////2VkZOTk5OTkbv///////vTk5OTk5GTvb/////AAD/9gdWTp9W
+Vp5GnggHBwf296SkpPf29vcH9ggH9wj2B/ebW6QHBwcHCKZGTk5GRk5G9wj/
+//////////////ZORk5OTk5ORv/////////////vTk5OTk5OTk5G9v//////
+//////+nRkZO7/////////////+WRk5OTk5On/////////////ZORk5OTk5O
+Ru///////+9OTk5OTkZO9v////8AAP//CKVGTlan755OpggHpJukBwebSf+k
+AKT2CAdJUgdbm6T3rVub9wgHRk5OTk5ODlYI9v//////////////705OTk5O
+Tg6e//////////////ZWRk5OTk5ORp///////////////+9ORkan9v//////
+/////5ZGTk5OTk6f////////////9kZOTk5OTk5O9v//////705OTk5ORk72
+/////wAA///2B1YO7+8H71ZO9wgHWwCk9vab/+1SmwcH91KkCKQH9gdSAKQI
+B05O705GTk5GBwj///////////////+fRk5OTk5ODe///////////////59G
+Tk5OTk4N7///////////////9lZGRlb2////////////lkZOTk5OTp//////
+///////nRk5OTk5ORpb////////vTk5OTk5GTvb/////AAD////2pU6f76dO
+TkZW7vYHpPcHBwj29vYHBwcHCPb2CAgHB6T39ghWDZ/vDlaWDp4I9v//////
+/////////1ZOTk5OTk5G////////////////70ZOTk5ORkb/////////////
+////n0ZOTu////////////+eRk5OTk5On////////////1ZGTk5OTk5G7///
+/////+9GTk5OTkZO7/////8AAP////YHnkZWTkZOTkZO7ggHBwcHBwcHCAcH
+BwcHBwcHBwcHBwgHVk6eTvbn705O9/b////////////////vTk5OTk5ORpb/
+///////////////2VkZOTk4Np/////////////////+nRk5Gn/b/////////
+/5ZGTk5OTk6f///////////vRk5OTk5ORk7/////////p0ZOTk5ORk7v////
+/wAA//////buTg5OTk5GnlZOpgkIBwcHBwcHBwcHBwcHBwcHBwgJ7k5GRfan
+VqeeDqUI/////////////////59GTk5OTk4N7/////////////////+eRk5O
+Tg32/////////////////6dGTkZO7//////////2Rk5OTk5OTqf/////////
+705GTk5OTk4N7/////////+nRk5OTk5GTvb/////AAD//////wj3TkZORp/v
+VkZGVvcICAcHBwcHBwcHBwcHBwgIB55ORuenXvavRkaeCPb/////////////
+//anTk5OTk5OTkZO9v///////////////+9OTk5GVvb////////////////v
+Tk5OTkZW7///////B05GTk5OTk5Olvb//////6dOTk5OTk5ORu//////////
+9lZGTk5OTk5Gp/////8AAP//////9gimTkaW7++WTp9OTpauBwgIBwcHBwcH
+CAgH7p5ODpae7/ZWVudGVgj2////////////9u/vlk5OTk5OTk5OTkZW7+/2
+////////////71ZOTkbv/////////////+/vn05GTk5OTkZOp+/v76dORk5O
+Tk5OTk5Olufv56eWTk5OTk5ORkbv//////bv76dWRk5OTk5OTk5Gn+/v7wAA
+////////9gimRlbv76en7+9WRk5Opqb3BwcHB/emnlZORkaWnqf2r+9GRpYH
+9v/////////////vTkZGTk5OTk5OTk5OTkZGTp/////////////2nkZGTu//
+///////////2VkZGRk5OTk5OTkZGTk5ORkZOTk5OTk5OTk5GRk5GRkZOTkZG
+RkaW7///////70ZORkZOTk5OTk5OTkZGRk5OAAD/////////9gimTk5Wn+9O
+757n71cOTk5OTk5OTkZGlpafn6+nVvanTkaWB/b//////////////+9GRkZG
+RkZGRkZGRkZGRkZGnv/////////////vTk6f9v////////////ZODUZGRkZG
+RkZGRkZGRkZGRkZGRkZGRkZGRkZGRkZGRk5OTlaf7/b////////vDUZGRkZG
+RkZGRkZGRkZGRkYAAP//////////9gj3TkZOp6/vn++nVpanDk6WRpafTp/2
+Vp7v7+9Olk5Gngj2////////////////9qenp6enp6enp6enp6enp6fv////
+//////////b29vb/////////////9u+np6enp6enp6enp6enp6enp6enp6en
+p6enp6enp6fv7/b29vb///////////anp6enp6enp6enp6enp6enpwAA////
+////////9gj3nkZO51bv7w0N/6cNp+9G9u+W76cBTu+nlk4OTqYI9v//////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////9v//////////
+//////////b/////////////////////AAD/////////////9vYHplYODp+W
+De8H5w2f7w32p06n9q+eVk5GTqb3CPb/////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+//////////8AAP////////////////YIB6ZWRkYOp06vTvb/Vu8Hnkaen05G
+Tp73CPb/////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////wAA////////
+///////////2CAf3nk5GDkZGTk5GRk5GRg5GVqYHCPb/////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////AAD/////////////////////9vYICPWl
+nVZWTo5WVpWd9/UICPb/////////////////////////////////////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+//////8AAP////////////////////////////b2CAgICAgI9vb2////////
+////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+/////////////////////////////////////////////wAA
+</Bmp></Bmap></I27><I28 Type="Text" Txt="Author:" H="9" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="48" Y="165"/></PtA></I28><I29 Type="TitleBlockTagText" TBTID="2" Txt="#DESIGNED" H="9" W="0" E="0" O="0" Wg="400" I="0" U="0" SO="0" CS="0" OP="3" CP="2" Q="1" PAF="34" LTP="0" KeepCurrentFont="1" FN="Arial" Sel="0" Vis="1" CBH="0" PFC="-1" PW="0" PS="0" BS="1" BC="-1"><PtA Type="PtrArray" S="1"><I0 Type="Point" X="93" Y="166"/></PtA></I29></DS></I2></LrsArr></DrDoc>
