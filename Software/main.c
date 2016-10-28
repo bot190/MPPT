@@ -34,7 +34,7 @@ int main(void) {
 
     //Enable Individual Interrupts
 
-    //BIS_SR(GIE);	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
+    //_BIS_SR(GIE);	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
 
     //	Code Body
 //    while(1){
