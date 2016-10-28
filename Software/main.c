@@ -8,7 +8,7 @@
  * Worcester Polytechnic Institute.
  *
  * Authored by:
- * 	Jonathan Adams
+ * 	Johnathan Adams
  * 	Ben Beauregard
  * 	Andrew Flynn
  *
