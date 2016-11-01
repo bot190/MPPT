@@ -1,0 +1,9 @@
+PWM_TRIAL
+
+VIN VSIN 0  SIN(0 1 10 0 0)
+ VP VTRI 0 PULSE(-1.5 1.5 0 9.998m 1u 1u 10m)
+ B1 VOUT 0 V=(STP(V(Vtri)-V(Vsin))*5)
+
+.PROBE
+.TRAN 50m 50m 0u 500n UIC
+.END

@@ -44,12 +44,15 @@ FULL_CIR_SIM
 XSOLAR 1 0 SOLAR_SIM
 *VTEST 1 0 30
 XFILTER_1 1 2 0 FILTER_1
-VPWM1 3 4 PULSE(0 3.3 0 1n 1n 0.01m 0.02m) 
+*.OPTIONS <Parameter Name>={SCHEDULE(<time-value>, <parameter value>
+.PARAM WIDTH = 0.2u
+.OPTIONS WIDTH={SCHEDULE(0,0.2u, 5m,1u)}
+VPWM1 3 4 PULSE(0 3.3 0 500n 500n {WIDTH} 0.02m)
 XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
-XFILTER_2 5 6 0 FILTER_2
-VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
-XOUT_BUCK 6 7 8 9 0 OUT_BUCK
-RLOAD 9 0 100
+*XFILTER_2 5 6 0 FILTER_2
+*VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
+*XOUT_BUCK 6 7 8 9 0 OUT_BUCK
+RLOAD 5 0 100
 
 **********************************************************************************************************
 * SOLAR CELL SIMULATOR
@@ -57,7 +60,7 @@ RLOAD 9 0 100
 * GND_REF TO BE CONNECTED TO NODE 0
 **********************************************************************************************************
 .SUBCKT SOLAR_SIM P_OUT GND
-    VSOLAR 2 1 36.7
+    VSOLAR 2 1 30
     D1 2 P_OUT D1N4004
     * MODEL BY SYMMETRY DESIGN SYSTEMS
     .MODEL D1N4004 D
@@ -263,5 +266,5 @@ RLOAD 9 0 100
 * SIMULATION CONFIGURATION
 **********************************************************************************************************
 .PROBE
-.TRAN 50m 50m 0u 500n UIC
+.TRAN 50m 50m 0u 1u UIC
 .END 
