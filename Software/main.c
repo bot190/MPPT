@@ -16,12 +16,15 @@
 
 #include <msp430.h>
 
+// DEFINES
+#define DOUT_P_CONST .1
 
 // Define Global Variables
 int v_out;	// Store V-OUT from ADC
 int v_mppt;	// Store V-MPPT from ADC
 int i_mppt;	// Store I-MPPT from ADC
 
+int v_setpoint = 200;	// Approximately 12V, with 750k and 45.3k resistors
 
 int main(void) {
 
@@ -123,6 +126,11 @@ int main(void) {
 	return 0;
 }
 
+/** \brief Timer A0 ISR that starts ADC measurements
+ *
+ * Function starts ADC CH2 (V-OUT) measurement when TA0 rolls over.
+ * The period is controlled by TA0CCR0
+ */
 #pragma vector=TIMER0_A1_VECTOR
 __interrupt void timerA0_ISR(void)
 {
@@ -139,6 +147,12 @@ __interrupt void timerA0_ISR(void)
 	}
 }
 
+/** \brief ADC10 ISR stores measurement, and kicks-off next one if necessary.
+ *
+ * Function copies measurement value into the respective global variable.
+ * Kicks off V-MPPT measurement, then I-MPPT measurement. Also calls
+ * adjust_out_duty_cycle to control D-OUT.
+ */
 #pragma vector=ADC10_VECTOR
 __interrupt void ADC10_ISR(void)
 {
@@ -168,17 +182,18 @@ __interrupt void ADC10_ISR(void)
 		// Start ADC conversion
 		ADC10CTL0 |= (ENC | ADC10SC);
 		// Call function to manage D-OUT
-		//adjust_out_duty_cycle();
+		//adjust_output_duty_cycle();
 		break;
 	}
 }
 
 /** \brief Adjusts the Duty Cycle of output buck converter
  *
- * Function Adjusts the Duty Cycle of the output buck converter based on the
+ * Function adjusts the Duty Cycle of the output buck converter based on the
  * measured voltage and the set-point. Uses a proportional algorithm to adjust
  * duty cycle.
  */
-void adjust_out_duty_cycle(void) {
+void adjust_output_duty_cycle(void) {
 
+	TA1CCR2 = DOUT_P_CONST * (v_setpoint - v_out);
 }
