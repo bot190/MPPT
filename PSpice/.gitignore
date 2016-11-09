@@ -1,3 +1,5 @@
 *.dat
 *.prb
 *.out*
+*.mif
+*.ind
