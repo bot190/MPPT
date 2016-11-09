@@ -9,7 +9,7 @@
 # note that time is in ms
 time = 0                #start time
 tstep = 5               #time in ms between voltage changes
-ttrans = 0.002          #time in ms for transition from one voltage to next
+ttrans = 0.1          #time in ms for transition from one voltage to next
 voltA = 10              #starting voltage (10v = 0%, 0v = 100%)
 
 string = "+ {0}ms,{1:.1f}V {2}ms,{3:.1f}"

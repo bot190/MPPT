@@ -10,7 +10,7 @@
 frequency = 50000       #freqency (Hertz)
 period = 1000/frequency    #length of period (m)
 pstart = 1              #starting duty cycle percentage
-pend = 50             #ending duty cycle percentage
+pend = 99             #ending duty cycle percentage
 pcurrent = 1            #place holder for current duty cycle value
 pstep = 1               #percentage to go up for each tstep 
 tstart = 0              #start time (ms)

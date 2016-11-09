@@ -13,15 +13,17 @@ FULL_CIR_SIM
 * INCLUDE: LIBRARY AND EXTERNAL FILE INCLUDES
 **********************************************************************************************************
 .LIB MPPT_MODELS.LIB
-*.LIB BRUTE_FORCE_VOLTAGE_SOURCE.LIB
+.LIB BRUTE_FORCE_VOLTAGE_SOURCE.LIB
 
 **********************************************************************************************************
 * MAIN: FOR CONNECTING PRIMARY SUBCIRCUITS TOGETHER
 **********************************************************************************************************
 *XSOLAR 1 0 SOLAR_SIM
+VTEST 2 0 30
 *XFILTER_1 1 2 0 FILTER_1
-VTEST 1 0 30
 XV1 3 4 PWM_COMP PARAMS: (VOUT=3.3)
+C 3 0 10N
+*XV1 3 4 PWM
 XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
 *XFILTER_2 5 6 0 FILTER_2
 *VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
@@ -134,6 +136,6 @@ RLOAD 5 0 100
 * SIMULATION CONFIGURATION
 **********************************************************************************************************
 .PROBE
-.TRAN 250m 250m 0u 1u UIC
+.TRAN 500m 500m 0u 1u UIC
 *.DC PARAM WIDTH LIST 0.005m 0.01m 0.015m
 .END 
