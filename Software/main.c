@@ -18,15 +18,18 @@
 
 // DEFINES
 #define DOUT_P_CONST .1
+#define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
 
 // Define Global Variables
 int v_out;	// Store V-OUT from ADC
 int v_mppt;	// Store V-MPPT from ADC
 int i_mppt;	// Store I-MPPT from ADC
 
-int v_setpoint = 200;	// Approximately 12V, with 750k and 45.3k resistors
 
-int main(void) {
+
+inline void adjust_output_duty_cycle(void);
+
+void main(void) {
 
 	//	Configuration & Initialization
     WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
@@ -45,18 +48,18 @@ int main(void) {
 
     /*  PIN MAP
      * P1.0 - I - I-MPPT - A0
-     * P1.1 - I - V-MPPT - A1
-     * P1.2 - I - V-OUT - A2
+     * P1.1 - O - UNUSED
+     * P1.2 - O - UNUSED
      * P1.3 - O - UNUSED
-     * P1.4 - O - UNUSED
-     * P1.5 - O - UNUSED
+     * P1.4 - I - V-OUT - A4
+     * P1.5 - I - V-MPPT - A5
      * P1.6 - O - UNUSED
      * P1.7 - O - UNUSED
      * P2.0 - O - UNUSED
      * P2.1 - O - Gate Driver MPPT MOSFET - TA1.1
      * P2.2 - O - UNUSED
      * P2.3 - O - UNUSED
-     * P2.4 - O - Gate Drive 2nd MOSFET - TA1.2
+     * P2.4 - O - Gate Drive V-OUT MOSFET - TA1.2
      * P2.5 - O - UNUSED
      * P2.6 - O - UNUSED
      * P2.7 - O - UNUSED
@@ -69,13 +72,12 @@ int main(void) {
     P2DIR = (BIT1 | BIT4);
     // Set P2.1 and P2.4 to primary function
     P2SEL = (BIT1 | BIT4);
-
     /*
      * Configure unused pins
      */
     // Set unused P1 pins to output
-    P1DIR = (BIT3 | BIT4 | BIT5 | BIT6 | BIT7);
-//    P1OUT = (BIT3 | BIT4 | BIT5 | BIT6 | BIT7); //todo Initialize correctly
+    P1DIR = (BIT1 | BIT2| BIT3 | BIT6 | BIT7);
+    P1OUT = (BIT1 | BIT2| BIT3 | BIT6 | BIT7); //todo Initialize correctly
     // Set unused P2 pins to output
     P2DIR |= (BIT0 | BIT2 | BIT3 | BIT5 | BIT6 | BIT7);
     // Set all P3 pins to output
@@ -87,11 +89,11 @@ int main(void) {
      * Configure ADC - Run on MCLK - 16MHz/4 = 4MHzx64 = 16uS
      */
     // Use Vcc and Vss, S&H Time: 64*ADC10CLKs, turn on ADC, enable interrupt, Enable ADC
-    ADC10CTL0 = (SREF_0 | ADC10SHT_3 | ADC10ON | ADC10IE | ENC);
+    ADC10CTL0 = (SREF_0 | ADC10SHT_3 | ADC10ON | ADC10SR | ADC10IE);
     // Use MCLK/4
     ADC10CTL1 = (ADC10SSEL_2 | ADC10DIV_3);
-    // Using A0, A1, and A2
-    ADC10AE0 = (BIT0 | BIT1 | BIT2);
+    // Using A0, A4, and A5
+    ADC10AE0 = (BIT0 | BIT4 | BIT5);
     // Not using the DTC
 
     /*
@@ -120,10 +122,9 @@ int main(void) {
     _BIS_SR(GIE);
 
     //	Code Body
-    while(1){
-    	//This is where the call to one of the MPPT algorithms goes... maybe?
-    }
-	return 0;
+//    while(1) {
+//    	//This is where the call to one of the MPPT algorithms goes... maybe?
+//    }
 }
 
 /** \brief Timer A0 ISR that starts ADC measurements
@@ -138,10 +139,10 @@ __interrupt void timerA0_ISR(void)
 		/*
 		 * Configure ADC to measure V-OUT
 		 */
-		// Read	A2 / V-OUT
-		ADC10CTL0 &= (0xFFFF & ~ENC);
+		// Read	A4 / V-OUT
+		ADC10CTL0 &= (~ENC);
 		ADC10CTL1 &= 0xFFF;
-		ADC10CTL1 |= INCH_2;
+		ADC10CTL1 |= INCH_4;
 		// Start ADC conversion
 		ADC10CTL0 |= (ENC | ADC10SC);
 	}
@@ -163,26 +164,26 @@ __interrupt void ADC10_ISR(void)
 		// We're done at this point
 		break;
 	// V-MPPT
-	case (0x1):
+	case (0x5):
 		v_mppt = ADC10MEM;
 		// Read	A0 / I-MPPT
-		ADC10CTL0 &= (0xFFFF & ~ENC);
+		ADC10CTL0 &= (~ENC);
 		ADC10CTL1 &= 0xFFF;
 		ADC10CTL1 |= INCH_0;
 		// Start ADC conversion
 		ADC10CTL0 |= (ENC | ADC10SC);
 		break;
 	// V-OUT
-	case (0x2):
+	case (0x4):
 		v_out = ADC10MEM;
-		// Read	A1 / V-MPPT
-		ADC10CTL0 &= (0xFFFF & ~ENC);
+		// Read	A5 / V-MPPT
+		ADC10CTL0 &= (~ENC);
 		ADC10CTL1 &= 0xFFF;
-		ADC10CTL1 |= INCH_1;
+		ADC10CTL1 |= INCH_5;
 		// Start ADC conversion
 		ADC10CTL0 |= (ENC | ADC10SC);
 		// Call function to manage D-OUT
-		//adjust_output_duty_cycle();
+		adjust_output_duty_cycle();
 		break;
 	}
 }
@@ -193,7 +194,10 @@ __interrupt void ADC10_ISR(void)
  * measured voltage and the set-point. Uses a proportional algorithm to adjust
  * duty cycle.
  */
-void adjust_output_duty_cycle(void) {
-
-	TA1CCR2 = DOUT_P_CONST * (v_setpoint - v_out);
+inline void adjust_output_duty_cycle(void)
+{
+	TA1CCR2 += (V_SETPOINT - v_out);
+	if (TA1CCR2 >= TA1CCR0) {
+		TA1CCR2 = TA1CCR0-1;
+	}
 }
