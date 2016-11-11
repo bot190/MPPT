@@ -22,6 +22,8 @@
 # MPPT Algorithm Using V-MPPT and I-MPPT, adjust D-MPPT
     // Sweep, P&O, Beta
     
-
+# If MPPT Buck doesn't see voltage when duty cycle is increased, then probably no input.
+# Shut off Output buck AND shut off MPPT buck. Periodically test this, turning
+# MPPT buck on, and leaving out buck off 
     
     
