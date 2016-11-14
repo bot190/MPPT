@@ -17,15 +17,29 @@
 #include <msp430.h>
 
 // DEFINES
-#define DOUT_P_CONST .1
+#define AVERAGELENGTH 4
+#define AVERAGELENGTH_BIT 2
 #define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
+#define MPPT_CONTROL 0x1
+#define VOUT_CONTROL 0x2
+
+const int Divisor = 4;
 
 // Define Global Variables
 int v_out;	// Store V-OUT from ADC
-int v_mppt;	// Store V-MPPT from ADC
-int i_mppt;	// Store I-MPPT from ADC
+int v_out_samples[AVERAGELENGTH]; // Store V-OUT samples
+int v_mppt;	// Store V-MPPT average from ADC
+int v_mppt_samples[AVERAGELENGTH]; // Store V-MPPT samples
+int i_mppt;	// Store I-MPPT average from ADC
+int i_mppt_samples[AVERAGELENGTH];	// Store I-MPPT samples
 
+unsigned int sample = 0;
 
+// Duty cycle control
+// 0x1 - MPPT
+// 0x2 - VOUT
+// 0x3 - Input Voltage present?
+volatile char DCTL;
 
 inline void adjust_output_duty_cycle(void);
 
@@ -113,18 +127,45 @@ void main(void) {
     /*
      * Configure Timer0 - ACLK
      */
-    // Use ACLK, /8 divider, Up mode
-    TA0CTL = (TASSEL_1 | ID_3 | MC_1 | TAIE);
-    // 1.5KHz clock, into 1500 gives 1 second
-    TA0CCR0 = (1500);
+    // Use ACLK, /1 divider, Up mode
+    TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
+    // 12KHz clock, into 3 gives 4KHz
+    TA0CCR0 = (3);
 
     //Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
     _BIS_SR(GIE);
 
+    // Iterator variable because this isn't c99 apparently
+    unsigned int i;
+
     //	Code Body
-//    while(1) {
+    while(1) {
 //    	//This is where the call to one of the MPPT algorithms goes... maybe?
-//    }
+    	if (DCTL & (MPPT_CONTROL)) {
+    		// Mark that this is complete
+    		DCTL & (~MPPT_CONTROL);
+    		// Run MPPT algorithm
+
+    		for (i=AVERAGELENGTH; i==0; i--) {
+    			// Calculate average I-MPPT
+    			i_mppt += i_mppt_samples[i];
+    			i_mppt = i_mppt >> AVERAGELENGTH_BIT;
+    			// Calculate average V-MPPT
+    			v_mppt += v_mppt_samples[i];
+    			v_mppt = v_mppt >> AVERAGELENGTH_BIT;
+    		}
+
+    	} else if (DCTL & (VOUT_CONTROL)) {
+    		// Mark that this is complete
+    		DCTL & (~VOUT_CONTROL);
+    		for (i=AVERAGELENGTH; i==0; i--) {
+    			v_out += v_out_samples[i];
+    			v_out = v_out >> AVERAGELENGTH_BIT;
+    		}
+    		// Run Vout Control algorithm
+    		adjust_output_duty_cycle();
+    	}
+    }
 }
 
 /** \brief Timer A0 ISR that starts ADC measurements
@@ -160,12 +201,20 @@ __interrupt void ADC10_ISR(void)
 	switch (ADC10CTL1 >> 12) {
 	// I-MPPT
 	case (0x0):
-		i_mppt = ADC10MEM;
-		// We're done at this point
+		i_mppt_samples[sample] = ADC10MEM;
+		// Only update Duty cycle at 1KHz
+		if (sample == 0) {
+			DCTL |= MPPT_CONTROL;
+		}
+		// Increment sample count, roll over at 3
+		sample++;
+		if (sample >= AVERAGELENGTH) {
+			sample = 0;
+		}
 		break;
 	// V-MPPT
 	case (0x5):
-		v_mppt = ADC10MEM;
+		v_mppt_samples[sample] = ADC10MEM;
 		// Read	A0 / I-MPPT
 		ADC10CTL0 &= (~ENC);
 		ADC10CTL1 &= 0xFFF;
@@ -175,15 +224,17 @@ __interrupt void ADC10_ISR(void)
 		break;
 	// V-OUT
 	case (0x4):
-		v_out = ADC10MEM;
+		v_out_samples[sample] = ADC10MEM;
 		// Read	A5 / V-MPPT
 		ADC10CTL0 &= (~ENC);
 		ADC10CTL1 &= 0xFFF;
 		ADC10CTL1 |= INCH_5;
 		// Start ADC conversion
 		ADC10CTL0 |= (ENC | ADC10SC);
-		// Call function to manage D-OUT
-		adjust_output_duty_cycle();
+		// Enable D-OUT algorithm at 1KHz
+		if (sample == 0) {
+			DCTL |= VOUT_CONTROL;
+		}
 		break;
 	}
 }
@@ -194,9 +245,9 @@ __interrupt void ADC10_ISR(void)
  * measured voltage and the set-point. Uses a proportional algorithm to adjust
  * duty cycle.
  */
-inline void adjust_output_duty_cycle(void)
+void adjust_output_duty_cycle(void)
 {
-	TA1CCR2 += (V_SETPOINT - v_out);
+	TA1CCR2 += ((V_SETPOINT - v_out) >> Divisor);
 	if (TA1CCR2 >= TA1CCR0) {
 		TA1CCR2 = TA1CCR0-1;
 	}
