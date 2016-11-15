@@ -23,7 +23,7 @@
 #define MPPT_CONTROL 0x1
 #define VOUT_CONTROL 0x2
 
-const int Divisor = 4;
+const int Divisor = 3;
 
 // Define Global Variables
 int v_out;	// Store V-OUT from ADC
@@ -129,8 +129,8 @@ void main(void) {
      */
     // Use ACLK, /1 divider, Up mode
     TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
-    // 12KHz clock, into 96 gives 125Hz
-    TA0CCR0 = (96);
+    // 12KHz clock, into 3 gives 4KHz
+    TA0CCR0 = (3);
 
     //Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
     _BIS_SR(GIE);
