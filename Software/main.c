@@ -17,8 +17,8 @@
 #include <msp430.h>
 
 // DEFINES
-#define AVERAGELENGTH 4
-#define AVERAGELENGTH_BIT 2
+#define AVERAGELENGTH 8
+#define AVERAGELENGTH_BIT 3
 #define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
 #define MPPT_CONTROL 0x1
 #define VOUT_CONTROL 0x2
@@ -38,8 +38,8 @@ unsigned int sample = 0;
 // Duty cycle control
 // 0x1 - MPPT
 // 0x2 - VOUT
-// 0x3 - Input Voltage present?
-volatile char DCTL;
+// 0x4 - Input Voltage present?
+volatile char DCTL = 0;
 
 inline void adjust_output_duty_cycle(void);
 
@@ -129,8 +129,8 @@ void main(void) {
      */
     // Use ACLK, /1 divider, Up mode
     TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
-    // 12KHz clock, into 3 gives 4KHz
-    TA0CCR0 = (3);
+    // 12KHz clock, into 96 gives 125Hz
+    TA0CCR0 = (96);
 
     //Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
     _BIS_SR(GIE);
@@ -143,25 +143,27 @@ void main(void) {
 //    	//This is where the call to one of the MPPT algorithms goes... maybe?
     	if (DCTL & (MPPT_CONTROL)) {
     		// Mark that this is complete
-    		DCTL & (~MPPT_CONTROL);
-    		// Run MPPT algorithm
-
-    		for (i=AVERAGELENGTH; i==0; i--) {
+    		DCTL = DCTL & (~MPPT_CONTROL);
+    		// Get average current and voltage
+    		i_mppt = v_mppt = 0;
+    		for (i=AVERAGELENGTH; i>0; i--) {
     			// Calculate average I-MPPT
-    			i_mppt += i_mppt_samples[i];
-    			i_mppt = i_mppt >> AVERAGELENGTH_BIT;
+    			i_mppt += i_mppt_samples[i-1];
     			// Calculate average V-MPPT
-    			v_mppt += v_mppt_samples[i];
-    			v_mppt = v_mppt >> AVERAGELENGTH_BIT;
+    			v_mppt += v_mppt_samples[i-1];
     		}
-
-    	} else if (DCTL & (VOUT_CONTROL)) {
+    		i_mppt = i_mppt >> AVERAGELENGTH_BIT;
+    		v_mppt = v_mppt >> AVERAGELENGTH_BIT;
+    		// Run MPPT algorithm
+    	}
+    	if (DCTL & (VOUT_CONTROL)) {
     		// Mark that this is complete
-    		DCTL & (~VOUT_CONTROL);
-    		for (i=AVERAGELENGTH; i==0; i--) {
-    			v_out += v_out_samples[i];
-    			v_out = v_out >> AVERAGELENGTH_BIT;
+    		DCTL = DCTL & (~VOUT_CONTROL);
+    		v_out = 0;
+    		for (i=AVERAGELENGTH; i>0; i--) {
+    			v_out += v_out_samples[i-1];
     		}
+    		v_out = v_out >> AVERAGELENGTH_BIT;
     		// Run Vout Control algorithm
     		adjust_output_duty_cycle();
     	}
@@ -208,7 +210,7 @@ __interrupt void ADC10_ISR(void)
 		}
 		// Increment sample count, roll over at 3
 		sample++;
-		if (sample >= AVERAGELENGTH) {
+		if (sample == AVERAGELENGTH) {
 			sample = 0;
 		}
 		break;
