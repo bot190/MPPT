@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include <msp430.h>
+#include <limits.h>
 
 // DEFINES
 #define AVERAGELENGTH 8
@@ -22,18 +23,27 @@
 #define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
 #define MPPT_CONTROL 0x1
 #define VOUT_CONTROL 0x2
+#define INPUT_VOLTAGE_PRESENT 0x4
 
 const int Divisor = 3;
 
 // Define Global Variables
 int v_out;	// Store V-OUT from ADC
 int v_out_samples[AVERAGELENGTH]; // Store V-OUT samples
+signed char v_out_sat;
+long v_out_integral;
+const int v_out_i = 1024;
 int v_mppt;	// Store V-MPPT average from ADC
 int v_mppt_samples[AVERAGELENGTH]; // Store V-MPPT samples
 int i_mppt;	// Store I-MPPT average from ADC
 int i_mppt_samples[AVERAGELENGTH];	// Store I-MPPT samples
 
+
+signed char mppt_sat;
+long mppt_integral;
+
 unsigned int sample = 0;
+unsigned char zero_samples = 0;
 
 // Duty cycle control
 // 0x1 - MPPT
@@ -41,7 +51,8 @@ unsigned int sample = 0;
 // 0x4 - Input Voltage present?
 volatile char DCTL = 0;
 
-inline void adjust_output_duty_cycle(void);
+int adjust_output_duty_cycle(int input, int setpoint, signed char *sat, long *x_integral, int Ki2, int n);
+long int result;
 
 void main(void) {
 
@@ -91,7 +102,7 @@ void main(void) {
      */
     // Set unused P1 pins to output
     P1DIR = (BIT1 | BIT2| BIT3 | BIT6 | BIT7);
-    P1OUT = (BIT1 | BIT2| BIT3 | BIT6 | BIT7); //todo Initialize correctly
+    P1OUT = (BIT1 | BIT2| BIT3 | BIT7); //todo Initialize correctly
     // Set unused P2 pins to output
     P2DIR |= (BIT0 | BIT2 | BIT3 | BIT5 | BIT6 | BIT7);
     // Set all P3 pins to output
@@ -144,28 +155,61 @@ void main(void) {
     	if (DCTL & (MPPT_CONTROL)) {
     		// Mark that this is complete
     		DCTL = DCTL & (~MPPT_CONTROL);
-    		// Get average current and voltage
-    		i_mppt = v_mppt = 0;
-    		for (i=AVERAGELENGTH; i>0; i--) {
-    			// Calculate average I-MPPT
-    			i_mppt += i_mppt_samples[i-1];
-    			// Calculate average V-MPPT
-    			v_mppt += v_mppt_samples[i-1];
+    		if (DCTL & INPUT_VOLTAGE_PRESENT) {
+				// Get average current and voltage
+				i_mppt = v_mppt = 0;
+				for (i=AVERAGELENGTH; i>0; i--) {
+					// Calculate average I-MPPT
+					i_mppt += i_mppt_samples[i-1];
+					// Calculate average V-MPPT
+					v_mppt += v_mppt_samples[i-1];
+				}
+				i_mppt = i_mppt >> AVERAGELENGTH_BIT;
+				v_mppt = v_mppt >> AVERAGELENGTH_BIT;
+				// Run MPPT algorithm
     		}
-    		i_mppt = i_mppt >> AVERAGELENGTH_BIT;
-    		v_mppt = v_mppt >> AVERAGELENGTH_BIT;
-    		// Run MPPT algorithm
     	}
-    	if (DCTL & (VOUT_CONTROL)) {
-    		// Mark that this is complete
+    	if (DCTL & VOUT_CONTROL) {
+			// Mark that this is complete
     		DCTL = DCTL & (~VOUT_CONTROL);
-    		v_out = 0;
-    		for (i=AVERAGELENGTH; i>0; i--) {
-    			v_out += v_out_samples[i-1];
+    		if (DCTL & INPUT_VOLTAGE_PRESENT) {
+				v_out = 0;
+				for (i=AVERAGELENGTH; i>0; i--) {
+					v_out += v_out_samples[i-1];
+				}
+				v_out = v_out >> AVERAGELENGTH_BIT;
+
+				/* HANDLE ZERO INPUT VOLTAGE */
+				if (v_out < 15) {
+					if (zero_samples >= 50) {
+						P1OUT &= (~BIT6);
+						zero_samples=0;
+						DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
+					} else {
+						P1OUT |= (BIT6);
+						zero_samples++;
+					}
+				}
+				/* HANDLE ZERO INPUT VOLTAGE */
+
+				// Run Vout Control algorithm
+				TA1CCR2 += adjust_output_duty_cycle(v_out, V_SETPOINT, &v_out_sat, &v_out_integral, v_out_i, Divisor);
+				if (TA1CCR2 >= TA1CCR0) {
+					TA1CCR2 = TA1CCR0-1;
+				}
     		}
-    		v_out = v_out >> AVERAGELENGTH_BIT;
-    		// Run Vout Control algorithm
-    		adjust_output_duty_cycle();
+    		/* HANDLE ZERO INPUT VOLTAGE */
+    		else {
+    			zero_samples++;
+    			if (zero_samples >= 250) {
+    				DCTL |= INPUT_VOLTAGE_PRESENT;
+    				// Zero integrals to avoid unnecessarily integrated error
+    				v_out_integral = 0;
+    				mppt_integral = 0;
+    				zero_samples = 0;
+    			}
+    		}
+    		/* HANDLE ZERO INPUT VOLTAGE */
     	}
     }
 }
@@ -247,10 +291,29 @@ __interrupt void ADC10_ISR(void)
  * measured voltage and the set-point. Uses a proportional algorithm to adjust
  * duty cycle.
  */
-void adjust_output_duty_cycle(void)
+int adjust_output_duty_cycle(int input, int setpoint, signed char *sat, long *x_integral, int Ki2, int n)
 {
-	TA1CCR2 += ((V_SETPOINT - v_out) >> Divisor);
-	if (TA1CCR2 >= TA1CCR0) {
-		TA1CCR2 = TA1CCR0-1;
+	int e = setpoint - input;
+	int x;
+	if ((*sat < 0 && e < 0) || (*sat > 0 && e > 0)) {
+	/* do nothing if there is saturation, and error is in the same direction;
+	 * if you're careful you can implement as "if (sat*e > 0)"
+	 */
+	} else {
+		*x_integral = *x_integral + (long)Ki2*e;
+		// Keep integral within range
+		if (*x_integral > LONG_MAX) {
+			*x_integral = LONG_MAX;
+			*sat = 1;
+		} else if (*x_integral < LONG_MIN) {
+			*x_integral = LONG_MIN;
+			*sat = -1;
+		} else {
+			*sat = 0;
+		}
+
+		x = (e >> n) + (int)(*x_integral >> 16);
+
 	}
+	return x;
 }
