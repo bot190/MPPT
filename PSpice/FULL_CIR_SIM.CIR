@@ -20,17 +20,19 @@ FULL_CIR_SIM
 **********************************************************************************************************
 *XSOLAR 1 0 SOLAR_SIM
 VTEST 2 0 30
-*XFILTER_1 1 2 0 FILTER_1
+XFILTER_1 1 2 0 FILTER_1
+
 *XV1 3 4 PWM_COMP PARAMS: (VOUT=3.3)
-VPWM1 3 4 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
-C 3 0 10n
 *XV1 3 4 PWM
+VPWM1 3 4 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
+CPWM1 3 0 10n
 XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
+
 XFILTER_2 5 6 0 FILTER_2
 VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
+CPWM2 7 0 10n
 XOUT_BUCK 6 7 8 9 0 OUT_BUCK
 RLOAD 9 0 50
-
 **********************************************************************************************************
 * SOLAR CELL SIMULATOR
 * OUTPUT NODES TO BE CONNECTED TO FILTER
@@ -93,6 +95,8 @@ RLOAD 9 0 50
 	RIND_OUT_FLTR 1 P_OUT 137m
 	COUT_FLTR 2 GND 15u
 	RCAP_OUT_FLTR P_OUT 2 8m
+	COUT_FLTR2 3 GND 100u
+	RCAP_OUT_FLTR2 P_OUT 3 74m 
 .ENDS
 * END MPPT_BUCK
 
@@ -132,6 +136,8 @@ RLOAD 9 0 50
 	RIND_OUT_FLTR 1 P_OUT 137m
 	COUT_FLTR 2 GND 15u
 	RCAP_OUT_FLTR P_OUT 2 8m
+	COUT_FLTR2 3 GND 100u
+	RCAP_OUT_FLTR2 P_OUT 3 74m
 .ENDS
 * END OUT_BUCK
 
@@ -139,6 +145,6 @@ RLOAD 9 0 50
 * SIMULATION CONFIGURATION
 **********************************************************************************************************
 .PROBE
-.TRAN 50m 50m 0u 1u UIC
+.TRAN 500m 500m 0u 1u UIC
 *.DC PARAM WIDTH LIST 0.005m 0.01m 0.015m
 .END 
