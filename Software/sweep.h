@@ -1,8 +1,9 @@
+#ifndef SWEEP_H
+#define SWEEP_H
 /******************************************************************************
  *                    Maximum Power Point Tracker (MPPT)
  *
- * This file implements the perturb and observe method of finding and staying
- * at the MPPT.
+ * This file implements the sweep method of finding and staying at the MPPT.
  *
  * This project is in fulfillment of the Major Qualifying Project at
  * Worcester Polytechnic Institute.
@@ -14,7 +15,17 @@
  *
  *****************************************************************************/
 
-int perturb_and_observe(void) {
+// Defines
+// Increment duty cycle by 4/320 = 1.25%
+#define SWEEPINC 4
 
-	return 0;
-}
+// Functions
+int sweep(long power, char DCTL);
+
+// Variables
+long max_power;
+int max_power_duty_cycle;
+int duty_cycle;
+
+
+#endif /* SWEEP_H */

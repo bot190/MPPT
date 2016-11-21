@@ -14,7 +14,14 @@
  *
  *****************************************************************************/
 
-int perturb_and_observe(void) {
+// Defines
+// Perturb duty cycle by 4/320 = 1.25%
+#define PERTURBINC 4
 
-	return 0;
-}
+// Functions
+int perturb_and_observe(void);
+
+// Global Variables
+int prev_power;
+int currrent_power;
+char perturb_dir;

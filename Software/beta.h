@@ -1,8 +1,7 @@
 /******************************************************************************
  *                    Maximum Power Point Tracker (MPPT)
  *
- * This file implements the perturb and observe method of finding and staying
- * at the MPPT.
+ * This file implements the beta method of finding and staying at the MPPT.
  *
  * This project is in fulfillment of the Major Qualifying Project at
  * Worcester Polytechnic Institute.
@@ -14,7 +13,14 @@
  *
  *****************************************************************************/
 
-int perturb_and_observe(void) {
+// Defines
+#define BETACONST ?
+#define BMIN ?
+#define BMAX ?
+// #define C (q/n*K*T*Ns)
 
-	return 0;
-}
+// Functions
+int beta(void);
+
+// Variables
+
