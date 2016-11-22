@@ -25,7 +25,7 @@ int sweep(long power, char DCTL);
 // Variables
 long max_power;
 int max_power_duty_cycle;
-int duty_cycle;
+int sweep_duty_cycle;
 
 
 #endif /* SWEEP_H */

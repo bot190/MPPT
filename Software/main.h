@@ -26,6 +26,7 @@
 #define VOUT_CONTROL 0x2
 #define INPUT_VOLTAGE_PRESENT 0x4
 #define SWEEP_COMPLETE 0x8
+#define PERTURB_DIRECTION 0x16
 
 // Define Global Variables
 
@@ -49,8 +50,8 @@ extern unsigned char zero_samples;
 // 0x1   - MPPT
 // 0x2   - VOUT
 // 0x4   - Input Voltage present?
-// 0x8   - Sweep Complete
-// 0x16  -
+// 0x8   - Sweep Complete (0 no, 1 yes)
+// 0x16  - Perturb Direction (0 down, 1 up)
 // 0x32  -
 // 0x64  -
 // 0x128 -

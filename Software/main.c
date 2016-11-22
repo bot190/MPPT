@@ -157,11 +157,11 @@ void main(void) {
 				long power = i_mppt * v_mppt;
 				// Run MPPT algorithm
 				switch (algorithm) {
-				case MPPT_SWEEP:// Includes
+				case MPPT_SWEEP:
 					TA1CCR1 = sweep(power, DCTL);
 					break;
 				case MPPT_PERTURBOBSERVE:
-					TA1CCR1 = perturb_and_observe();
+					TA1CCR1 = perturb_and_observe(power, DCTL);
 					break;
 				case MPPT_BETA:
 					TA1CCR1 = beta();

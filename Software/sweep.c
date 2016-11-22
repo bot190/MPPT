@@ -28,10 +28,10 @@ int sweep(long power, char DCTL) {
 	// else have we done the entire sweep yet?
 	if (TA1CCR1 == 320) {
 		DCTL |= SWEEP_COMPLETE;
-		duty_cycle = max_power_duty_cycle;
+		sweep_duty_cycle = max_power_duty_cycle;
 	}else if ((DCTL & SWEEP_COMPLETE) == 0) {
 		// Haven't completed sweep yet, increment duty cycle
-		duty_cycle += SWEEPINC;
+		sweep_duty_cycle += SWEEPINC;
 	}
-	return duty_cycle;
+	return sweep_duty_cycle;
 }
