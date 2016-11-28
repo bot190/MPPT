@@ -158,10 +158,10 @@ void main(void) {
 				// Run MPPT algorithm
 				switch (algorithm) {
 				case MPPT_SWEEP:
-					TA1CCR1 = sweep(power, DCTL);
+					TA1CCR1 = sweep(power, &DCTL);
 					break;
 				case MPPT_PERTURBOBSERVE:
-					TA1CCR1 = perturb_and_observe(power, DCTL);
+					TA1CCR1 = perturb_and_observe(power, &DCTL);
 					break;
 				case MPPT_BETA:
 					TA1CCR1 = beta();
@@ -246,41 +246,41 @@ __interrupt void ADC10_ISR(void) {
 	switch (ADC10CTL1 >> 12) {
 	// I-MPPT
 	case (0x0):
-				i_mppt_samples[sample] = ADC10MEM;
-	// Only update Duty cycle at 1KHz
-	if (sample == 0) {
-		DCTL |= MPPT_CONTROL;
-	}
-	// Increment sample count, roll over at 3
-	sample++;
-	if (sample == AVERAGELENGTH) {
-		sample = 0;
-	}
-	break;
+		i_mppt_samples[sample] = ADC10MEM;
+		// Only update Duty cycle at 1KHz
+		if (sample == 0) {
+			DCTL |= MPPT_CONTROL;
+		}
+		// Increment sample count, roll over at 3
+		sample++;
+		if (sample == AVERAGELENGTH) {
+			sample = 0;
+		}
+		break;
 	// V-MPPT
 	case (0x5):
-				v_mppt_samples[sample] = ADC10MEM;
-	// Read	A0 / I-MPPT
-	ADC10CTL0 &= (~ENC);
-	ADC10CTL1 &= 0xFFF;
-	ADC10CTL1 |= INCH_0;
-	// Start ADC conversion
-	ADC10CTL0 |= (ENC | ADC10SC);
-	break;
+		v_mppt_samples[sample] = ADC10MEM;
+		// Read	A0 / I-MPPT
+		ADC10CTL0 &= (~ENC);
+		ADC10CTL1 &= 0xFFF;
+		ADC10CTL1 |= INCH_0;
+		// Start ADC conversion
+		ADC10CTL0 |= (ENC | ADC10SC);
+		break;
 	// V-OUT
 	case (0x4):
-				v_out_samples[sample] = ADC10MEM;
-	// Read	A5 / V-MPPT
-	ADC10CTL0 &= (~ENC);
-	ADC10CTL1 &= 0xFFF;
-	ADC10CTL1 |= INCH_5;
-	// Start ADC conversion
-	ADC10CTL0 |= (ENC | ADC10SC);
-	// Enable D-OUT algorithm at 1KHz
-	if (sample == 0) {
-		DCTL |= VOUT_CONTROL;
-	}
-	break;
+		v_out_samples[sample] = ADC10MEM;
+		// Read	A5 / V-MPPT
+		ADC10CTL0 &= (~ENC);
+		ADC10CTL1 &= 0xFFF;
+		ADC10CTL1 |= INCH_5;
+		// Start ADC conversion
+		ADC10CTL0 |= (ENC | ADC10SC);
+		// Enable D-OUT algorithm at 1KHz
+		if (sample == 0) {
+			DCTL |= VOUT_CONTROL;
+		}
+		break;
 	}
 }
 
@@ -291,7 +291,7 @@ __interrupt void ADC10_ISR(void) {
  * duty cycle.
  */
 int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
-		long *x_integral, int Ki2, int n) {
+							 long *x_integral, int Ki2, int n) {
 	int e = setpoint - input;
 	int x;
 	if ((*sat < 0 && e < 0) || (*sat > 0 && e > 0)) {
