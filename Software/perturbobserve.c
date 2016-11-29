@@ -16,7 +16,7 @@
 #include "perturbobserve.h"
 #include "main.h"
 
-int perturb_and_observe(long power, char *DCTL) {
+int perturb_and_observe(long power, volatile char *DCTL) {
 	// Only adjust duty cycle if the difference was "significant"
 	if ((power >= (prev_power + (prev_power >> PERTURBDEADZONE))) ||
 			(power <= (prev_power - (prev_power >> PERTURBDEADZONE)) ) ) {

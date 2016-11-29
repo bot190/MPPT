@@ -18,7 +18,7 @@
 
 // DEFINES
 #define AVERAGELENGTH 8
-#define AVERAGELENGTH_BIT 3
+#define AVERAGELENGTHBIT 3
 
 #define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
 

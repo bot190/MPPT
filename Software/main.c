@@ -44,8 +44,8 @@ volatile char DCTL;					//Bitmask.  Moonorails.  (see header).
 
 void main(void) {
 
-	//	Configuration & Initialization
-	WDTCTL = WDTPW | WDTHOLD;	// Stop watchdog timer
+	// Stop watchdog timer
+	WDTCTL = WDTPW | WDTHOLD;
 
 	/*
 	 * Configure Clocks
@@ -53,7 +53,7 @@ void main(void) {
 	// 16MHz calibrated clock
 	DCOCTL = CALDCO_16MHZ;
 	// Set ACLK to /2
-	BCSCTL1 = (CALBC1_16MHZ);	// | DIVA_1);
+	BCSCTL1 = (CALBC1_16MHZ);
 	// MCLK & SMCLK from DCO, both divided by 1, DCO resistor internal
 	BCSCTL2 = 0b00000000;
 	// Use VLOCLK for ACLK
@@ -90,7 +90,7 @@ void main(void) {
 	 */
 	// Set unused P1 pins to output
 	P1DIR = (BIT1 | BIT2 | BIT3 | BIT6 | BIT7);
-	P1OUT = (BIT1 | BIT2 | BIT3 | BIT7); //todo Initialize correctly
+	P1OUT = (BIT1 | BIT2 | BIT3 | BIT7);
 	// Set unused P2 pins to output
 	P2DIR |= (BIT0 | BIT2 | BIT3 | BIT5 | BIT6 | BIT7);
 	// Set all P3 pins to output
@@ -131,15 +131,15 @@ void main(void) {
 	// 12KHz clock, into 3 gives 4KHz
 	TA0CCR0 = (3);
 
-	//Global Interrupt Enable... I think.  Not tested.  Do all config before this line.
+	//Global Interrupt Enable
 	_BIS_SR(GIE);
 
 	// Iterator variable because this isn't c99 apparently
 	unsigned int i;
 
-	//	Code Body
+	// Code Body
 	while (1) {
-		//    	//This is where the call to one of the MPPT algorithms goes... maybe?
+		// Should we adjust the MPPT duty cycle this loop?
 		if (DCTL & (MPPT_CONTROL)) {
 			// Mark that this is complete
 			DCTL = DCTL & (~MPPT_CONTROL);
@@ -152,8 +152,8 @@ void main(void) {
 					// Calculate average V-MPPT
 					v_mppt += v_mppt_samples[i - 1];
 				}
-				i_mppt = i_mppt >> AVERAGELENGTH_BIT;
-				v_mppt = v_mppt >> AVERAGELENGTH_BIT;
+				i_mppt = i_mppt >> AVERAGELENGTHBIT;
+				v_mppt = v_mppt >> AVERAGELENGTHBIT;
 				long power = i_mppt * v_mppt;
 				// Run MPPT algorithm (Set duty cycle--TA1CCR1--based on algorithm)
 				switch (algorithm) {
@@ -169,6 +169,7 @@ void main(void) {
 				}
 			}
 		}
+		// Should we adjust the output duty cycle this loop?
 		if (DCTL & VOUT_CONTROL) {
 			// Mark that this is complete
 			DCTL = DCTL & (~VOUT_CONTROL);
@@ -177,7 +178,7 @@ void main(void) {
 				for (i = AVERAGELENGTH; i > 0; i--) {
 					v_out += v_out_samples[i - 1];
 				}
-				v_out = v_out >> AVERAGELENGTH_BIT;
+				v_out = v_out >> AVERAGELENGTHBIT;
 
 				/* HANDLE ZERO INPUT VOLTAGE */
 				if (v_out < 15) {
@@ -294,25 +295,23 @@ int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
 							 long *x_integral, int Ki2, int n) {
 	int e = setpoint - input;
 	int x;
-	if ((*sat < 0 && e < 0) || (*sat > 0 && e > 0)) {
-		/* do nothing if there is saturation, and error is in the same direction;
-		 * if you're careful you can implement as "if (sat*e > 0)"
-		 */
-	} else {
-		*x_integral = *x_integral + (long) Ki2 * e;
-		// Keep integral within range
-		if (*x_integral > LONG_MAX) {
-			*x_integral = LONG_MAX;
-			*sat = 1;
-		} else if (*x_integral < LONG_MIN) {
-			*x_integral = LONG_MIN;
-			*sat = -1;
-		} else {
-			*sat = 0;
-		}
 
-		x = (e >> n) + (int) (*x_integral >> 16);
-
+	/* If there isn't saturation, or there is,
+	 * but saturation is the opposite direction from the error
+     */
+	if (! ((*sat < 0 && e < 0) || (*sat > 0 && e > 0))) {
+	    *x_integral = *x_integral + (long) Ki2 * e;
+        // Keep integral within range
+        if (*x_integral > LONG_MAX) {
+            *x_integral = LONG_MAX;
+            *sat = 1;
+        } else if (*x_integral < LONG_MIN) {
+            *x_integral = LONG_MIN;
+            *sat = -1;
+        } else {
+            *sat = 0;
+        }
+        x = (e >> n) + (int) (*x_integral >> 16);
 	}
 	return x;
 }

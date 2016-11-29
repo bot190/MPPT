@@ -18,7 +18,7 @@
 #include "sweep.h"
 #include "msp430.h"
 
-int sweep(long power, char *DCTL) {
+int sweep(long power, volatile char *DCTL) {
 	// New power > old power, save duty cycle
 	if (power > max_power) {
 		max_power_duty_cycle = TA1CCR1;
