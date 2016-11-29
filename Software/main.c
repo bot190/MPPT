@@ -24,23 +24,23 @@
 
 // Define Global Variables
 
-int v_out;	// Store V-OUT from ADC
-int v_out_samples[AVERAGELENGTH]; // Store V-OUT samples
-signed char v_out_sat;
-long v_out_integral;
-const int v_out_i = 1024;
-int v_mppt;	// Store V-MPPT average from ADC
-int v_mppt_samples[AVERAGELENGTH]; // Store V-MPPT samples
-int i_mppt;	// Store I-MPPT average from ADC
+int v_out;							// Store V-OUT from ADC
+int v_out_samples[AVERAGELENGTH]; 	// Store V-OUT samples
+signed char v_out_sat;				// Saturation-Flag for integral computation (part of PID)
+long v_out_integral;				// Value of Vout integral computation
+const int v_out_i = 1024;			// Integration "parameter" (constant, multiplies error in integral calculation)
+int v_mppt;							// Store V-MPPT average from ADC
+int v_mppt_samples[AVERAGELENGTH]; 	// Store V-MPPT samples
+int i_mppt;							// Store I-MPPT average from ADC
 int i_mppt_samples[AVERAGELENGTH];	// Store I-MPPT samples
-signed char mppt_sat;
-long mppt_integral;
+signed char mppt_sat;				// Flag for integral computation (part of PID)
+long mppt_integral;					// Value of MPPT integral
 
-const int Divisor = 3;
-unsigned int sample;
-unsigned char zero_samples;
+const int Divisor = 3;				// Proportional Constant = 1/2^Divisor
+unsigned int sample;				// Counts the number of samples used for any average computation
+unsigned char zero_samples;			// Cycle counter for handling 0V input condition
 
-volatile char DCTL;
+volatile char DCTL;					//Bitmask.  Moonorails.  (see header).
 
 void main(void) {
 
@@ -155,7 +155,7 @@ void main(void) {
 				i_mppt = i_mppt >> AVERAGELENGTH_BIT;
 				v_mppt = v_mppt >> AVERAGELENGTH_BIT;
 				long power = i_mppt * v_mppt;
-				// Run MPPT algorithm
+				// Run MPPT algorithm (Set duty cycle--TA1CCR1--based on algorithm)
 				switch (algorithm) {
 				case MPPT_SWEEP:
 					TA1CCR1 = sweep(power, &DCTL);
