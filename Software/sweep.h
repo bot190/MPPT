@@ -20,12 +20,10 @@
 #define SWEEPINC 4
 
 // Functions
-int sweep(long power, volatile char *DCTL);
+int sweep(volatile char *DCTL);
 
 // Variables
 long max_power;
 int max_power_duty_cycle;
-int sweep_duty_cycle;
-
 
 #endif /* SWEEP_H */

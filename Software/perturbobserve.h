@@ -20,8 +20,7 @@
 #define PERTURBDEADZONE 5
 
 // Functions
-int perturb_and_observe(long power, volatile char *DCTL);
+int perturb_and_observe(volatile char *DCTL);
 
 // Global Variables
 long prev_power;
-int perturb_observe_duty_cycle;

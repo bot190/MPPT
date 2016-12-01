@@ -39,8 +39,11 @@ long mppt_integral;					// Value of MPPT integral
 const int Divisor = 3;				// Proportional Constant = 1/2^Divisor
 unsigned int sample;				// Counts the number of samples used for any average computation
 unsigned char zero_samples;			// Cycle counter for handling 0V input condition
+int mppt_duty_cycle;                 // MPPT Duty Cycle
 
 volatile char DCTL;					//Bitmask.  Moonorails.  (see header).
+
+long power;
 
 void main(void) {
 
@@ -121,7 +124,7 @@ void main(void) {
 	// Compare 2 should reset/set TA1.2
 	TA1CCTL2 = OUTMOD_7;
 	// PWM frequency should be 50KHz
-	TA1CCR0 = (320 - 1);
+	TA1CCR0 = (MAX_DUTY_CYCLE - 1);
 
 	/*
 	 * Configure Timer0 - ACLK
@@ -154,17 +157,16 @@ void main(void) {
 				}
 				i_mppt = i_mppt >> AVERAGELENGTHBIT;
 				v_mppt = v_mppt >> AVERAGELENGTHBIT;
-				long power = i_mppt * v_mppt;
 				// Run MPPT algorithm (Set duty cycle--TA1CCR1--based on algorithm)
 				switch (algorithm) {
 				case MPPT_SWEEP:
-					TA1CCR1 = sweep(power, &DCTL);
+					TA1CCR1 = sweep(&DCTL);
 					break;
 				case MPPT_PERTURBOBSERVE:
-					TA1CCR1 = perturb_and_observe(power, &DCTL);
+					TA1CCR1 = perturb_and_observe(&DCTL);
 					break;
 				case MPPT_BETA:
-					TA1CCR1 = beta();
+					TA1CCR1 = beta(&DCTL);
 					break;
 				}
 			}
@@ -196,8 +198,8 @@ void main(void) {
 				// Run Vout Control algorithm
 				TA1CCR2 += adjust_output_duty_cycle(v_out, V_SETPOINT,
 						&v_out_sat, &v_out_integral, v_out_i, Divisor);
-				if (TA1CCR2 >= TA1CCR0) {
-					TA1CCR2 = TA1CCR0 - 1;
+				if (TA1CCR2 >= MAX_DUTY_CYCLE) {
+					TA1CCR2 = MAX_DUTY_CYCLE;
 				}
 			}
 			/* HANDLE ZERO INPUT VOLTAGE */

@@ -18,7 +18,8 @@
 #include "sweep.h"
 #include "msp430.h"
 
-int sweep(long power, volatile char *DCTL) {
+int sweep(volatile char *DCTL) {
+    power = i_mppt * v_mppt;
 	// New power > old power, save duty cycle
 	if (power > max_power) {
 		max_power_duty_cycle = TA1CCR1;
@@ -26,12 +27,12 @@ int sweep(long power, volatile char *DCTL) {
 	}
 	// If we just hit 100%, mark sweep complete
 	// else have we done the entire sweep yet?
-	if (TA1CCR1 == 320) {
+	if (mppt_duty_cycle == 320) {
 		*DCTL |= SWEEP_COMPLETE;
-		sweep_duty_cycle = max_power_duty_cycle;
+		mppt_duty_cycle = max_power_duty_cycle;
 	}else if ((*DCTL & SWEEP_COMPLETE) == 0) {
 		// Haven't completed sweep yet, increment duty cycle
-		sweep_duty_cycle += SWEEPINC;
+	    mppt_duty_cycle += SWEEPINC;
 	}
-	return sweep_duty_cycle;
+	return mppt_duty_cycle;
 }
