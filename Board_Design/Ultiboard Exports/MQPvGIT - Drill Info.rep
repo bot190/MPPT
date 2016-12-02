@@ -17,20 +17,20 @@ DRILLFILE                                LAMINATION
 MQPvGIT - Copper Top-Copper Bottom.drl   Copper Top .. Copper Bottom
 
 TOOL     SIZE   TYPE  COUNT
-   1  0.03200    PTH     12
-   2  0.02362    PTH     27
-   3  0.04667    PTH      6
-   4  0.02559    PTH      4
-   5  0.05118    PTH      3
-   6  0.05118    PTH      3
-   7  0.03500    PTH     71
-   8  0.03543    PTH     16
-   9  0.04724    PTH      4
-  10  0.03917    PTH      8
-  11  0.05906    PTH      8
+   1  0.02362    PTH     27
+   2  0.14950    PTH      4
+   3  0.03917    PTH      8
+   4  0.03500    PTH     71
+   5  0.03200    PTH     12
+   6  0.02559    PTH      4
+   7  0.04667    PTH      6
+   8  0.03700    PTH      4
+   9  0.05906    PTH      8
+  10  0.03543    PTH     16
+  11  0.02598    PTH     10
   12  0.03937    PTH      6
-  13  0.06102    PTH      3
-  14  0.02598    PTH     10
-  15  0.03700    PTH      4
-  16  0.02953    PTH      4
-  17  0.14950    PTH      4
+  13  0.04724    PTH      4
+  14  0.06102    PTH      3
+  15  0.02953    PTH      4
+  16  0.05118    PTH      3
+  17  0.05118    PTH      3
