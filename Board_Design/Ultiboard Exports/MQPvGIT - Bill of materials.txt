@@ -1,8 +1,8 @@
 Ultiboard Information Export File
 
 Design Name  : MQPvGIT - Bill of materials
-Report Date  : 29 November 2016
-Report Time  : 14:04
+Report Date  : 8 December 2016
+Report Time  : 13:30
 --------------------------------------------------------------------------------
 
 VALUE        SHAPE        #    REFDES       
