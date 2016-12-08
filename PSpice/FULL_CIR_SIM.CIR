@@ -13,36 +13,40 @@ FULL_CIR_SIM
 * INCLUDE: LIBRARY AND EXTERNAL FILE INCLUDES
 **********************************************************************************************************
 .LIB MPPT_MODELS.LIB
-.LIB BRUTE_FORCE_VOLTAGE_SOURCE.LIB
+.LIB BRUTE_FORCE_VOLTAGE_SOURCE_320.LIB
+.LIB BRUTE_FORCE_VOLTAGE_SOURCE_320_PERCENT.LIB
 
 **********************************************************************************************************
 * MAIN: FOR CONNECTING PRIMARY SUBCIRCUITS TOGETHER
 **********************************************************************************************************
+XVPERCENT 100 0 PERCENT
 *XSOLAR 1 0 SOLAR_SIM
-VTEST 2 0 30
+VTEST 1 0 30
 XFILTER_1 1 2 0 FILTER_1
 
-XV1 3 4 PWM_COMP PARAMS: (VOUT=3.3)
-*XV1 3 4 PWM
+*XV1 3 4 PWM_COMP PARAMS: (VOUT=3.3)
+XV1 3 4 PWM
 *VPWM1 3 4 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
 CPWM1 3 0 10n
 XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
 
-XFILTER_2 5 6 0 FILTER_2
-VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
-CPWM2 7 0 10n
-XOUT_BUCK 6 7 8 9 0 OUT_BUCK
-RLOAD 9 0 50
+*Rdummy 5 0 100
+
+*XFILTER_2 5 6 0 FILTER_2
+*VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
+*CPWM2 7 0 10n
+*XOUT_BUCK 6 7 8 9 0 OUT_BUCK
+RLOAD 5 0 100
 **********************************************************************************************************
 * SOLAR CELL SIMULATOR
 * OUTPUT NODES TO BE CONNECTED TO FILTER
 * GND_REF TO BE CONNECTED TO NODE 0
+* R2 AND R3 MAKE UP 50% 10K POT TO IRF1310 GATE
 **********************************************************************************************************
 .SUBCKT SOLAR_SIM P_OUT GND
     VSOLAR 2 1 30
     D1 2 P_OUT D1N4004
     R1 P_OUT 3 10K
-    * RSOLAR1 AND RSOLAR2 MAKE UP 50% 10K POT TO IRF1310 GATE
     R2 3 4 5K
     R3 4 1 5K
     XQ1 GND 4 1 IRF1310
@@ -137,6 +141,5 @@ RLOAD 9 0 50
 * SIMULATION CONFIGURATION
 **********************************************************************************************************
 .PROBE
-.TRAN 500m 500m 0u 1u UIC
-*.DC PARAM WIDTH LIST 0.005m 0.01m 0.015m
+.TRAN 1580m 1580m 0u 1u UIC
 .END 
