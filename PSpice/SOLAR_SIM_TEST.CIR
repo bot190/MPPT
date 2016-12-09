@@ -1,0 +1,71 @@
+SOLAR_SIM_TEST
+VSOLAR 1 0 30
+D1 1 2 D1N4004
+R1 2 3 2.5K
+R2 3 4 7.5K
+R3 4 0 10K
+XQ1 5 3 2 IRF9520
+RLOAD 5 0 RMOD 1
+
+.MODEL RMOD RES(R=1)
+
+.STEP RES RMOD(R) 1u, 20, 1
+
+.MODEL D1N4004 D
+	+IS=5.31656e-08 RS=0.0392384 N=2 EG=0.6
+	+XTI=0.05 BV=400 IBV=5e-08 CJO=1e-11
+	+VJ=0.7 M=0.5 FC=0.5 TT=1e-09
+	+KF=0 AF=1
+
+.SUBCKT IRF9520 1 2 3
+	*MODEL BY SYMMETRY DESIGN SYSTEMS
+	* External Node Designations
+	* Node 1 -> Drain
+	* Node 2 -> Gate
+	* Node 3 -> Source
+	M1 9 7 8 8 MM L=100u W=100u
+	* Default values used in MM:
+	* The voltage-dependent capacitances are
+	* not included. Other default values are:
+	*   RS=0 RD=0 LD=0 CBD=0 CBS=0 CGBO=0
+	.MODEL MM PMOS LEVEL=1 IS=1e-32
+	+VTO=-3.41185 LAMBDA=0.0289226 KP=3.46967
+	+CGSO=3.45033e-06 CGDO=1e-11
+	RS 8 3 0.167957
+	D1 1 3 MD
+	.MODEL MD D IS=7.308e-22 RS=0.17 N=1.29916 BV=100
+	+IBV=10 EG=1 XTI=1 TT=1e-07
+	+CJO=4.53963e-10 VJ=2.47692 M=0.539653 FC=0.1
+	RDS 3 1 1e+06
+	RD 9 1 0.198401
+	RG 2 7 11.3744
+	D2 5 4 MD1
+	* Default values used in MD1:
+	*   RS=0 EG=1.11 XTI=3.0 TT=0
+	*   BV=infinite IBV=1mA
+	.MODEL MD1 D IS=1e-32 N=50
+	+CJO=3.45426e-10 VJ=1.57654 M=0.730307 FC=1e-08
+	D3 5 0 MD2
+	* Default values used in MD2:
+	*   EG=1.11 XTI=3.0 TT=0 CJO=0
+	*   BV=infinite IBV=1mA
+	.MODEL MD2 D IS=1e-10 N=0.4 RS=3e-06
+	RL 5 10 1
+	FI2 7 9 VFI2 -1
+	VFI2 4 0 0
+	EV16 10 0 9 7 1
+	CAP 11 10 7.65813e-10
+	FI1 7 9 VFI1 -1
+	VFI1 11 6 0
+	RCAP 6 10 1
+	D4 6 0 MD3
+	* Default values used in MD3:
+	*   EG=1.11 XTI=3.0 TT=0 CJO=0
+	*   RS=0 BV=infinite IBV=1mA
+	.MODEL MD3 D IS=1e-10 N=0.4
+.ENDS
+*END IRF9520
+
+.DC VSOLAR 30 30 1
+.PRINT DC V(5) I(RLOAD)
+.END
