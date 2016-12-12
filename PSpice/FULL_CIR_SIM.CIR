@@ -39,17 +39,17 @@ XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
 RLOAD 5 0 100
 **********************************************************************************************************
 * SOLAR CELL SIMULATOR
-* OUTPUT NODES TO BE CONNECTED TO FILTER
-* GND_REF TO BE CONNECTED TO NODE 0
-* R2 AND R3 MAKE UP 50% 10K POT TO IRF1310 GATE
+* OUTPUT NODE TO BE CONNECTED TO FIRST FILTER INPUT
+* GND TO BE CONNECTED TO NODE 0
+* R1 AND R2 MAKE UP 25% 10K POT TO IRF9520 GATE
 **********************************************************************************************************
 .SUBCKT SOLAR_SIM P_OUT GND
-    VSOLAR 2 1 30
-    D1 2 P_OUT D1N4004
-    R1 P_OUT 3 10K
-    R2 3 4 5K
-    R3 4 1 5K
-    XQ1 GND 4 1 IRF1310
+    VSOLAR 1 GND 30
+    D1 1 2 D1N4004
+    R1 2 3 7.5K
+    R2 3 4 2.5K
+    R3 4 GND 10K
+    XQ1 P_OUT 3 2 IRF9520
 .ENDS
 * END SOLAR_SIM
 
