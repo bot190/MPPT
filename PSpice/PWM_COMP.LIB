@@ -1,0 +1,123 @@
+.SUBCKT PWM_COMP V_OUT GND PARAMS: VOUT=3.3
+	* 50KHZ TRIANGLE WAVE 
+	* (GENERATED USING PULSE SOURCE WITH LONG RISE/FALL TIMES)
+	VCLK COMP_P GND PULSE(0V 10V 0 9u 9u 1u 20u)
+	RCLK COMP_P GND 1K
+
+	* DC REFERENCE VOLTAGE
+	* RAMPED USING PARAM SWEEP
+	.PARAM DUTY_CYCLE=25
+	VTHR COMP_N GND PWL(
+	+ 0ms,10.0V 4.9ms,10.0
+	+ 5ms,9.9V 9.9ms,9.9
+	+ 10ms,9.8V 14.9ms,9.8
+	+ 15ms,9.7V 19.9ms,9.7
+	+ 20ms,9.6V 24.9ms,9.6
+	+ 25ms,9.5V 29.9ms,9.5
+	+ 30ms,9.4V 34.9ms,9.4
+	+ 35ms,9.3V 39.9ms,9.3
+	+ 40ms,9.2V 44.9ms,9.2
+	+ 45ms,9.1V 49.9ms,9.1
+	+ 50ms,9.0V 54.9ms,9.0
+	+ 55ms,8.9V 59.9ms,8.9
+	+ 60ms,8.8V 64.9ms,8.8
+	+ 65ms,8.7V 69.9ms,8.7
+	+ 70ms,8.6V 74.9ms,8.6
+	+ 75ms,8.5V 79.9ms,8.5
+	+ 80ms,8.4V 84.9ms,8.4
+	+ 85ms,8.3V 89.9ms,8.3
+	+ 90ms,8.2V 94.9ms,8.2
+	+ 95ms,8.1V 99.9ms,8.1
+	+ 100ms,8.0V 104.9ms,8.0
+	+ 105ms,7.9V 109.9ms,7.9
+	+ 110ms,7.8V 114.9ms,7.8
+	+ 115ms,7.7V 119.9ms,7.7
+	+ 120ms,7.6V 124.9ms,7.6
+	+ 125ms,7.5V 129.9ms,7.5
+	+ 130ms,7.4V 134.9ms,7.4
+	+ 135ms,7.3V 139.9ms,7.3
+	+ 140ms,7.2V 144.9ms,7.2
+	+ 145ms,7.1V 149.9ms,7.1
+	+ 150ms,7.0V 154.9ms,7.0
+	+ 155ms,6.9V 159.9ms,6.9
+	+ 160ms,6.8V 164.9ms,6.8
+	+ 165ms,6.7V 169.9ms,6.7
+	+ 170ms,6.6V 174.9ms,6.6
+	+ 175ms,6.5V 179.9ms,6.5
+	+ 180ms,6.4V 184.9ms,6.4
+	+ 185ms,6.3V 189.9ms,6.3
+	+ 190ms,6.2V 194.9ms,6.2
+	+ 195ms,6.1V 199.9ms,6.1
+	+ 200ms,6.0V 204.9ms,6.0
+	+ 205ms,5.9V 209.9ms,5.9
+	+ 210ms,5.8V 214.9ms,5.8
+	+ 215ms,5.7V 219.9ms,5.7
+	+ 220ms,5.6V 224.9ms,5.6
+	+ 225ms,5.5V 229.9ms,5.5
+	+ 230ms,5.4V 234.9ms,5.4
+	+ 235ms,5.3V 239.9ms,5.3
+	+ 240ms,5.2V 244.9ms,5.2
+	+ 245ms,5.1V 249.9ms,5.1
+	+ 250ms,5.0V 254.9ms,5.0
+	+ 255ms,4.9V 259.9ms,4.9
+	+ 260ms,4.8V 264.9ms,4.8
+	+ 265ms,4.7V 269.9ms,4.7
+	+ 270ms,4.6V 274.9ms,4.6
+	+ 275ms,4.5V 279.9ms,4.5
+	+ 280ms,4.4V 284.9ms,4.4
+	+ 285ms,4.3V 289.9ms,4.3
+	+ 290ms,4.2V 294.9ms,4.2
+	+ 295ms,4.1V 299.9ms,4.1
+	+ 300ms,4.0V 304.9ms,4.0
+	+ 305ms,3.9V 309.9ms,3.9
+	+ 310ms,3.8V 314.9ms,3.8
+	+ 315ms,3.7V 319.9ms,3.7
+	+ 320ms,3.6V 324.9ms,3.6
+	+ 325ms,3.5V 329.9ms,3.5
+	+ 330ms,3.4V 334.9ms,3.4
+	+ 335ms,3.3V 339.9ms,3.3
+	+ 340ms,3.2V 344.9ms,3.2
+	+ 345ms,3.1V 349.9ms,3.1
+	+ 350ms,3.0V 354.9ms,3.0
+	+ 355ms,2.9V 359.9ms,2.9
+	+ 360ms,2.8V 364.9ms,2.8
+	+ 365ms,2.7V 369.9ms,2.7
+	+ 370ms,2.6V 374.9ms,2.6
+	+ 375ms,2.5V 379.9ms,2.5
+	+ 380ms,2.4V 384.9ms,2.4
+	+ 385ms,2.3V 389.9ms,2.3
+	+ 390ms,2.2V 394.9ms,2.2
+	+ 395ms,2.1V 399.9ms,2.1
+	+ 400ms,2.0V 404.9ms,2.0
+	+ 405ms,1.9V 409.9ms,1.9
+	+ 410ms,1.8V 414.9ms,1.8
+	+ 415ms,1.7V 419.9ms,1.7
+	+ 420ms,1.6V 424.9ms,1.6
+	+ 425ms,1.5V 429.9ms,1.5
+	+ 430ms,1.4V 434.9ms,1.4
+	+ 435ms,1.3V 439.9ms,1.3
+	+ 440ms,1.2V 444.9ms,1.2
+	+ 445ms,1.1V 449.9ms,1.1
+	+ 450ms,1.0V 454.9ms,1.0
+	+ 455ms,0.9V 459.9ms,0.9
+	+ 460ms,0.8V 464.9ms,0.8
+	+ 465ms,0.7V 469.9ms,0.7
+	+ 470ms,0.6V 474.9ms,0.6
+	+ 475ms,0.5V 479.9ms,0.5
+	+ 480ms,0.4V 484.9ms,0.4
+	+ 485ms,0.3V 489.9ms,0.3
+	+ 490ms,0.2V 494.9ms,0.2
+	+ 495ms,0.1V 499.9ms,0.1)
+
+	RTHR COMP_N GND 1MEG
+
+	RIN COMP_P COMP_N 100
+
+	* COMPARATOR, INPUT = V(COMP_P,COMP_N)
+	* FOR V(COMP_P,COMP_N) < -1mV, OUTPUT = 0V
+	* FOR V(COMP_P,COMP_N) > +1mV, OUTPUT = 10V
+	ECOMP V_OUT GND TABLE {V(COMP_P,COMP_N)} = (-1mV 0V) (1mV {VOUT}) 
+	RCOMP1 V_OUT 4 1m
+	RCOMP2 4 GND 1MEG
+	CCOMP 4 GND 10n
+.ENDS END PWM_COMP
