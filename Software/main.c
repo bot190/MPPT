@@ -39,7 +39,7 @@ long mppt_integral;					// Value of MPPT integral
 const int Divisor = 3;				// Proportional Constant = 1/2^Divisor
 unsigned int sample;				// Counts the number of samples used for any average computation
 unsigned char zero_samples;			// Cycle counter for handling 0V input condition
-int mppt_duty_cycle;                 // MPPT Duty Cycle
+int mppt_duty_cycle;                // MPPT Duty Cycle
 
 volatile char DCTL;					//Bitmask.  Moonorails.  (see header).
 
