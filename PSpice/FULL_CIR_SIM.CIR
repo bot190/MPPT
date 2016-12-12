@@ -1,48 +1,61 @@
 FULL_CIR_SIM
-**********************************************************************************************************
+*************************************************************************
 * SOLAR MAX. POWER POINT TRACKER MQP
 * JOHNATHAN ADAMS, BENJAMIN BEAUREGARD, ANDREW FLYNN
 * ADVISOR: PROFESSOR ALEXANDER EMANUEL
 * A, B, C TERM 2016-2017
 * WORCESTER POLYTECHNIC INSTITUTE
-**********************************************************************************************************
+*************************************************************************
 * DOCUMENT: FULL_CIR_SIM.CIR
 * DATE CREATED: 10/12/16
 
-**********************************************************************************************************
+*************************************************************************
 * INCLUDE: LIBRARY AND EXTERNAL FILE INCLUDES
-**********************************************************************************************************
+*************************************************************************
 .LIB MPPT_MODELS.LIB
-.LIB BRUTE_FORCE_VOLTAGE_SOURCE_320.LIB
-.LIB BRUTE_FORCE_VOLTAGE_SOURCE_320_PERCENT.LIB
+.LIB PWM_STEP_SOURCE_320.LIB
+.LIB PWM_STEP_SOURCE_320_PERCENT.LIB
 
-**********************************************************************************************************
+*************************************************************************
 * MAIN: FOR CONNECTING PRIMARY SUBCIRCUITS TOGETHER
-**********************************************************************************************************
+*************************************************************************
+***VOLTAGE REPRESENTING PERCENT DUTY CYCLE OF PWM SOURCE***
 XVPERCENT 100 0 PERCENT
+
+***SOLAR CELL EMULATOR***
 *XSOLAR 1 0 SOLAR_SIM
+
+***TEST VOLTAGE IN PLACE OF SOLAR CELL EMULATOR***
 VTEST 1 0 30
+
+***FIRST FILTER***
 XFILTER_1 1 2 0 FILTER_1
 
-*XV1 3 4 PWM_COMP PARAMS: (VOUT=3.3)
-XV1 3 4 PWM
-*VPWM1 3 4 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
-CPWM1 3 0 10n
+***MPPT BUCK CONVERTER AND STEPPED PWM DRIVER***
 XMPPT_BUCK 2 3 4 5 0 MPPT_BUCK
+XV1 3 4 PWM
+CPWM1 3 0 10n
 
-*Rdummy 5 0 100
+***TEST LOAD FOR MPPT BUCK CONVERTER***
+RMPPT 5 0 100
 
+***SECOND FILTER***
 *XFILTER_2 5 6 0 FILTER_2
+
+***VOLTAGE REGULATOR BUCK CONVERTER AND STATIC PWM DRIVER***
+*XOUT_BUCK 6 7 8 9 0 OUT_BUCK
 *VPWM2 7 8 PULSE(0 3.3 0 1n 1n 0.01m 0.02m)
 *CPWM2 7 0 10n
-*XOUT_BUCK 6 7 8 9 0 OUT_BUCK
-RLOAD 5 0 100
-**********************************************************************************************************
-* SOLAR CELL SIMULATOR
+
+***TEST LOAD FOR REGULATOR BUCK CONVERTER***
+*RLOAD 9 0 100
+
+*************************************************************************
+* SOLAR CELL EMULATOR
 * OUTPUT NODE TO BE CONNECTED TO FIRST FILTER INPUT
 * GND TO BE CONNECTED TO NODE 0
 * R1 AND R2 MAKE UP 25% 10K POT TO IRF9520 GATE
-**********************************************************************************************************
+*************************************************************************
 .SUBCKT SOLAR_SIM P_OUT GND
     VSOLAR 1 GND 30
     D1 1 2 D1N4004
@@ -50,14 +63,13 @@ RLOAD 5 0 100
     R2 3 4 2.5K
     R3 4 GND 10K
     XQ1 P_OUT 3 2 IRF9520
-.ENDS
-* END SOLAR_SIM
+.ENDS SOLAR_SIM
 
-**********************************************************************************************************
+*************************************************************************
 * FILTER 1
-* INPUT NODES TO BE CONNECTED TO SOLAR CELL SIMULATOR OUTPUT
-* OUTPUT NODES TO BE CONNECTED TO BUCK CONVERTER INPUT
-**********************************************************************************************************
+* INPUT NODE TO BE CONNECTED TO SOLAR CELL EMULATIOR OUTPUT
+* OUTPUT NODE TO BE CONNECTED TO VREG BUCK CONVERTER INPUT
+*************************************************************************
 .SUBCKT FILTER_1 P_IN P_OUT GND
 	XFLTR1 P_IN 1 GND FLTR_STAGE
 	XFLTR2 1 2 GND FLTR_STAGE
@@ -67,45 +79,42 @@ RLOAD 5 0 100
 	RC_FINAL P_OUT 4 8m
 	D_FREE 5 P_IN MBR1060
 	RD P_OUT 5 100
-.ENDS
-*END FILTER_1
+.ENDS FILTER_1
 
 .SUBCKT FLTR_STAGE 1 2 3
     * External node designations:
     * Node 1 -> stage input
     * Node 2 -> stage output
     * Node 3 -> ground
-    L 1 4 1m
-    RL 4 2 10m
-    C 5 3 100n
-    RC 5 2 8m
-.ENDS
-* END FLTR_STAGE
+    L1 1 4 1m
+    RL1 4 2 10m
+    C1 5 3 100n
+    RC1 5 2 8m
+.ENDS FLTR_STAGE
 
-**********************************************************************************************************
+*************************************************************************
 * MPPT BUCK CONVERTER
-* INPUT NODES TO BE CONNECTED TO FILTER OUTPUT
-* SIG_IN NODE TO BE CONNECTED TO PULSE VOLTAGE SOURCE IN MAIN FOR PWM
-* OUTPUT NODES TO BE CONNECTED TO FILTER 2
-**********************************************************************************************************
+* INPUT NODE TO BE CONNECTED TO FILTER 1 OUTPUT
+* PWM SOURCE IN MAIN GETS CONNECTED BETWEEN SIG_IN AND P_REF
+* OUTPUT NODE TO BE CONNECTED TO FILTER 2
+*************************************************************************
 .SUBCKT MPPT_BUCK P_IN SIG_IN P_REF P_OUT GND
 	XQ2 P_IN SIG_IN P_REF DMT6009LCT
 	D2 GND P_REF MBR1060
-	L P_REF 1 1m
-	RL 1 P_OUT 137m
+	L1 P_REF 1 1m
+	RL1 1 P_OUT 137m
 	C1 2 GND 15u
 	RC1 P_OUT 2 8m
 	C2 3 GND 100u
 	RC2 P_OUT 3 74m 
-.ENDS
-* END MPPT_BUCK
+.ENDS MPPT_BUCK
 
-**********************************************************************************************************
+*************************************************************************
 * FILTER 2
-* INPUT NODES TO BE CONNECTED TO MPPT BUCK CONVERTER OUTPUT
+* INPUT NODE TO BE CONNECTED TO MPPT BUCK CONVERTER OUTPUT
 * OUTPUT NODES TO BE CONNECTED TO OUTPUT BUCK CONVERTER INPUT
 * NOTE: USES "FLTR_STAGE" SUBCIRCUIT FROM FILTER 1
-**********************************************************************************************************
+*************************************************************************
 .SUBCKT FILTER_2 P_IN P_OUT GND
 	XFLTR1 P_IN 1 GND FLTR_STAGE
 	XFLTR2 1 2 GND FLTR_STAGE
@@ -118,18 +127,18 @@ RLOAD 5 0 100
 .ENDS
 *END FILTER_2
 
-**********************************************************************************************************
+*************************************************************************
 * OUT BUCK CONVERTER
 * P_IN AND GND NODES TO BE CONNECTED TO FILTER_2 OUTPUT
 * SIG_IN NODE TO BE CONNECTED TO PULSE VOLTAGE SOURCE IN MAIN FOR PWM
 * OUTPUT NODES TO BE CONNECTED TO LOAD (IN MAIN)
 * NOTE: USES DMT6009LCT SUBCIRCUIT FROM MPPT_BUCK
-**********************************************************************************************************
+*************************************************************************
 .SUBCKT OUT_BUCK P_IN SIG_IN P_REF P_OUT GND
 	XQ3 P_IN SIG_IN P_REF DMT6009LCT
 	D3 GND P_REF MBR1060
-	L P_REF 1 1m
-	RL 1 P_OUT 137m
+	L1 P_REF 1 1m
+	RL1 1 P_OUT 137m
 	C1 2 GND 15u
 	RC1 P_OUT 2 8m
 	C2 3 GND 100u
@@ -137,9 +146,9 @@ RLOAD 5 0 100
 .ENDS
 * END OUT_BUCK
 
-**********************************************************************************************************
+*************************************************************************
 * SIMULATION CONFIGURATION
-**********************************************************************************************************
+*************************************************************************
 .PROBE
 .TRAN 1580m 1580m 0u 1u UIC
 .END 
