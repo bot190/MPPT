@@ -40,7 +40,6 @@ int beta(volatile char *DCTL) {
     } else {
         // Otherwise use another algorithm to reach the top
         perturb_and_observe(DCTL);
-
         beta_step_const = 0;
     }
 	return mppt_duty_cycle;
