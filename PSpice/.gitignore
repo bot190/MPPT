@@ -3,3 +3,6 @@
 *.out*
 *.mif
 *.ind
+*.LIB
+!PWM_COMP.LIB
+!MPPT_MODELS.LIB
