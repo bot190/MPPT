@@ -64,12 +64,12 @@ extern long power;
 extern volatile char DCTL;
 
 enum mppt_algorithm_type {
-	MPPT_SWEEP,
-	MPPT_PERTURBOBSERVE,
-	MPPT_BETA
+    MPPT_SWEEP,
+    MPPT_PERTURBOBSERVE,
+    MPPT_BETA
 } algorithm;
 
 int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
-		long *x_integral, int Ki2, int n);
+        long *x_integral, int Ki2, int n);
 
 #endif /* MAIN_H */
