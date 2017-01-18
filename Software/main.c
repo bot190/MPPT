@@ -42,10 +42,7 @@ int v_mppt_samples[AVERAGELENGTH];
 int i_mppt;
 // Store I-MPPT samples
 int i_mppt_samples[AVERAGELENGTH];
-// Flag for integral computation (part of PID)
-signed char mppt_sat;
-// Value of MPPT integral
-long mppt_integral;
+
 
 // Proportional Constant = 1/2^Divisor
 const int Divisor = 3;
@@ -61,6 +58,9 @@ volatile char DCTL;
 
 // Calculated power draw from MPPT Buck Converter
 long power;
+
+// Define algorithm variable to choose MPPT algorithm
+enum mppt_algorithm_type algorithm = DEFAULT;
 
 void main(void) {
 
@@ -185,6 +185,8 @@ void main(void) {
                     case MPPT_BETA:
                         TA1CCR1 = beta(&DCTL);
                         break;
+                    case DEFAULT:
+                        break;
                 }
             }
         }
@@ -201,7 +203,7 @@ void main(void) {
 
                 /* HANDLE ZERO INPUT VOLTAGE */
                 if (v_out < 15) {
-                    if (zero_samples >= 50) {
+                    if (zero_samples >= 20) {
                         P1OUT &= (~BIT6);
                         zero_samples = 0;
                         DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
@@ -222,11 +224,10 @@ void main(void) {
             /* HANDLE ZERO INPUT VOLTAGE */
             else {
                 zero_samples++;
-                if (zero_samples >= 250) {
+                if (zero_samples >= 100) {
                     DCTL |= INPUT_VOLTAGE_PRESENT;
                     // Zero integrals to avoid unnecessarily integrated error
                     v_out_integral = 0;
-                    mppt_integral = 0;
                     zero_samples = 0;
                 }
             }

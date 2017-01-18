@@ -20,7 +20,7 @@
 #define AVERAGELENGTH 8
 #define AVERAGELENGTHBIT 3
 
-#define V_SETPOINT 200	// Approximately 12V, with 750k and 45.3k resistors
+#define V_SETPOINT 319	// Approximately 12V, with 750k and 45.3k resistors
 #define MAX_DUTY_CYCLE 320
 #define MIN_DUTY_CYCLE 0
 
@@ -41,8 +41,6 @@ extern int v_mppt;							// Store V-MPPT average from ADC
 extern int v_mppt_samples[AVERAGELENGTH]; 	// Store V-MPPT samples
 extern int i_mppt;							// Store I-MPPT average from ADC
 extern int i_mppt_samples[AVERAGELENGTH];	// Store I-MPPT samples
-extern signed char mppt_sat;				// Flag for integral computation (part of PID)
-extern long mppt_integral;					// Value of MPPT integral
 
 extern const int Divisor;	    			// Proportional Constant = 1/2^Divisor
 extern unsigned int sample;				    // Counts the number of samples used for any average computation
@@ -64,10 +62,11 @@ extern long power;
 extern volatile char DCTL;
 
 enum mppt_algorithm_type {
+    DEFAULT = 0,
     MPPT_SWEEP,
     MPPT_PERTURBOBSERVE,
     MPPT_BETA
-} algorithm;
+};
 
 int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
         long *x_integral, int Ki2, int n);
