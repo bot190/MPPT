@@ -57,10 +57,10 @@ int mppt_duty_cycle;
 volatile char DCTL;
 
 // Calculated power draw from MPPT Buck Converter
-long power;
+unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type algorithm = DEFAULT;
+enum mppt_algorithm_type algorithm = MPPT_SWEEP;
 
 void main(void) {
 
@@ -174,6 +174,21 @@ void main(void) {
                 }
                 i_mppt = i_mppt >> AVERAGELENGTHBIT;
                 v_mppt = v_mppt >> AVERAGELENGTHBIT;
+                /* HANDLE ZERO INPUT VOLTAGE */
+                if (v_mppt < 15) {
+                    if (zero_samples >= 20) {
+                        P1OUT &= (~BIT6);
+                        zero_samples = 0;
+                        // Not detecting a voltage
+                        DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
+                        // Shut off VOUT buck converter for now
+                        TA1CCR2 = 0;
+                    } else {
+                        P1OUT |= (BIT6);
+                        zero_samples++;
+                    }
+                }
+                /* HANDLE ZERO INPUT VOLTAGE */
                 // Run MPPT algorithm (Set duty cycle - TA1CCR1)
                 switch (algorithm) {
                     case MPPT_SWEEP:
@@ -189,6 +204,17 @@ void main(void) {
                         break;
                 }
             }
+            /* HANDLE ZERO INPUT VOLTAGE */
+            else {
+                zero_samples++;
+                if (zero_samples >= 100) {
+                    DCTL |= INPUT_VOLTAGE_PRESENT;
+                    // Zero integrals to avoid unnecessarily integrated error
+                    v_out_integral = 0;
+                    zero_samples = 0;
+                }
+            }
+            /* HANDLE ZERO INPUT VOLTAGE */
         }
         // Should we adjust the output duty cycle this loop?
         if (DCTL & VOUT_CONTROL) {
@@ -201,19 +227,6 @@ void main(void) {
                 }
                 v_out = v_out >> AVERAGELENGTHBIT;
 
-                /* HANDLE ZERO INPUT VOLTAGE */
-                if (v_out < 15) {
-                    if (zero_samples >= 20) {
-                        P1OUT &= (~BIT6);
-                        zero_samples = 0;
-                        DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
-                    } else {
-                        P1OUT |= (BIT6);
-                        zero_samples++;
-                    }
-                }
-                /* HANDLE ZERO INPUT VOLTAGE */
-
                 // Run Vout Control algorithm
                 TA1CCR2 += adjust_output_duty_cycle(v_out, V_SETPOINT,
                         &v_out_sat, &v_out_integral, v_out_i, Divisor);
@@ -221,17 +234,6 @@ void main(void) {
                     TA1CCR2 = MAX_DUTY_CYCLE;
                 }
             }
-            /* HANDLE ZERO INPUT VOLTAGE */
-            else {
-                zero_samples++;
-                if (zero_samples >= 100) {
-                    DCTL |= INPUT_VOLTAGE_PRESENT;
-                    // Zero integrals to avoid unnecessarily integrated error
-                    v_out_integral = 0;
-                    zero_samples = 0;
-                }
-            }
-            /* HANDLE ZERO INPUT VOLTAGE */
         }
     }
 }

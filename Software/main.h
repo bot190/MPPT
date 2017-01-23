@@ -48,7 +48,7 @@ extern unsigned char zero_samples;			// Cycle counter for handling 0V input cond
 extern int mppt_duty_cycle;                 // MPPT Duty Cycle
 
 // Variables used by MPPT methods
-extern long power;
+extern unsigned long power;
 
 // Duty cycle control
 // 0x1   - MPPT
