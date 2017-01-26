@@ -81,7 +81,7 @@ void main(void) {
 
     /*  PIN MAP
      * P1.0 - I - I-MPPT - A0
-     * P1.1 - O - UNUSED
+     * P1.1 - O - Algorithm Reset Button
      * P1.2 - O - UNUSED
      * P1.3 - O - UNUSED
      * P1.4 - I - V-OUT - A4
@@ -109,8 +109,11 @@ void main(void) {
      * Configure unused pins
      */
     // Set unused P1 pins to output
-    P1DIR = (BIT1 | BIT2 | BIT3 | BIT6 | BIT7);
-    P1OUT = (BIT1 | BIT2 | BIT3 | BIT7);
+    P1DIR = (BIT2 | BIT3 | BIT6 | BIT7);
+    // Enable pull-up resistor for P1.1
+    P1REN = (BIT1);
+    // Setting BIT1 uses the Pull-Up resistor instead of the pull down resistor
+    P1OUT = (BIT1 | BIT2 | BIT3 | BIT6 | BIT7);
     // Set unused P2 pins to output
     P2DIR |= (BIT0 | BIT2 | BIT3 | BIT5 | BIT6 | BIT7);
     // Set all P3 pins to output
@@ -177,14 +180,12 @@ void main(void) {
                 /* HANDLE ZERO INPUT VOLTAGE */
                 if (v_mppt < 15) {
                     if (zero_samples >= 20) {
-                        P1OUT &= (~BIT6);
                         zero_samples = 0;
                         // Not detecting a voltage
                         DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
                         // Shut off VOUT buck converter for now
                         TA1CCR2 = 0;
                     } else {
-                        P1OUT |= (BIT6);
                         zero_samples++;
                     }
                 }
