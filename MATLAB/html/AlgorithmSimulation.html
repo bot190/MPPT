@@ -6,7 +6,7 @@
    <!--
 This HTML was auto-generated from MATLAB code.
 To make changes, update the MATLAB code and republish this document.
-      --><title>MATLAB script to prove functionality of MPPT algorithm</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-01-26"><meta name="DC.source" content="AlgorithmSimulation.m"><style type="text/css">
+      --><title>MATLAB script to prove functionality of MPPT algorithm</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-01-27"><meta name="DC.source" content="AlgorithmSimulation.m"><style type="text/css">
 html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
 
 html { min-height:100%; margin-bottom:1px; }
@@ -66,7 +66,21 @@ table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px soli
 
 
 
-  </style></head><body><div class="content"><h1>MATLAB script to prove functionality of MPPT algorithm</h1><!--introduction--><p>Authors: Andrew Flynn, Ben Beauregard, Johnathan Adams</p><p>This script attempts to imulate the functionality of the maximum power point tracking algorithm built in C for use with the projects hardware. This is meant as a proof that the concept is sound and the algorithm will track theoretical and actual maximum power point data, not as an actual implementation to run on the hardware. As such, certain things are abstracted, such as duty cycle setting and tracking, ISRs, and other MCU-specific functionality.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Flynn's Code to load Experimental Data</a></li><li><a href="#2">Data-Error Check</a></li><li><a href="#3">Ben's MPPT Algorithm</a></li><li><a href="#4">Graph data</a></li></ul></div><h2>Flynn's Code to load Experimental Data<a name="1"></a></h2><p>We're just calling another script here.  It reads a data file in a terribly... unintuitive way, but it does work, and if it ain't broke...</p><pre class="codeinput">ivcurve
+  </style></head><body><div class="content"><h1>MATLAB script to prove functionality of MPPT algorithm</h1><!--introduction--><p>Authors: Andrew Flynn, Ben Beauregard, Johnathan Adams</p><p>This script attempts to imulate the functionality of the maximum power point tracking algorithm built in C for use with the projects hardware. This is meant as a proof that the concept is sound and the algorithm will track theoretical and actual maximum power point data, not as an actual implementation to run on the hardware. As such, certain things are abstracted, such as duty cycle setting and tracking, ISRs, and other MCU-specific functionality.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Flynn's Code to load Experimental Data</a></li><li><a href="#2">Data-Error Check</a></li><li><a href="#3">Ben's MPPT Algorithm</a></li><li><a href="#4">Graph data</a></li></ul></div><h2>Flynn's Code to load Experimental Data<a name="1"></a></h2><p>We're just calling another script here.  It reads a data file in a terribly... unintuitive way, but it does work, and if it ain't broke...</p><pre class="codeinput">clear;
+fid = fopen(<span class="string">'SolarSweepData.txt'</span>, <span class="string">'r'</span>) ; <span class="comment">% Open source file.</span>
+<span class="keyword">if</span> fid == -1
+    disp(<span class="string">'ERROR 404: File Not Found'</span>) ;
+<span class="keyword">else</span>
+    fgetl(fid) ;                                  <span class="comment">% Read/discard line.</span>
+    fgetl(fid) ;                                  <span class="comment">% Read/discard line.</span>
+    buffer = fread(fid, Inf) ;                    <span class="comment">% Read rest of the file.</span>
+    fclose(fid);
+    fid = fopen(<span class="string">'_temp.txt'</span>, <span class="string">'w'</span>)  ;   <span class="comment">% Open destination file.</span>
+    fwrite(fid, buffer) ;                         <span class="comment">% Save to file.</span>
+    fclose(fid) ;
+    A = tdfread(<span class="string">'_temp.txt'</span>) ;
+    delete(<span class="string">'_temp.txt'</span>) ;
+<span class="keyword">end</span>
 </pre><h2>Data-Error Check<a name="2"></a></h2><p>If we have more voltage samples than current samples something is wrong and should probably be fixed before the simulation is continued.</p><pre class="codeinput"><span class="keyword">if</span> length(A.Voltage_0x5BV0x5D) ~= length(A.x0x23_Current_0x5BA0x5D)
     disp(<span class="string">'Sample Size Mismatch.  What are you doing?'</span>)
 <span class="keyword">else</span>
@@ -121,9 +135,11 @@ hLine2.LineStyle = <span class="string">'-'</span>;
 hold <span class="string">on</span>;
 v = IV(1,max_power_ind);
 plot([v v], [0 max_power],<span class="string">'Color'</span>,[0 1 0]);
-</pre><pre class="codeoutput">The calculated maximum power was 17.3696
-The maximum power point was at index 26 of 87
-The theoretical duty cycle is 29.8851 percent
+grid <span class="string">on</span>;
+grid <span class="string">minor</span>;
+</pre><pre class="codeoutput">The calculated maximum power was 5.3695
+The maximum power point was at index 30 of 36
+The theoretical duty cycle is 83.3333 percent
 </pre><img vspace="5" hspace="5" src="AlgorithmSimulation_01.png" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
 ##### SOURCE BEGIN #####
 %% MATLAB script to prove functionality of MPPT algorithm
@@ -140,7 +156,21 @@ The theoretical duty cycle is 29.8851 percent
 %% Flynn's Code to load Experimental Data
 % We're just calling another script here.  It reads a data file in a
 % terribly... unintuitive way, but it does work, and if it ain't broke...
-ivcurve
+clear; 
+fid = fopen('SolarSweepData.txt', 'r') ; % Open source file.
+if fid == -1
+    disp('ERROR 404: File Not Found') ;
+else
+    fgetl(fid) ;                                  % Read/discard line.
+    fgetl(fid) ;                                  % Read/discard line.
+    buffer = fread(fid, Inf) ;                    % Read rest of the file.
+    fclose(fid);
+    fid = fopen('_temp.txt', 'w')  ;   % Open destination file.
+    fwrite(fid, buffer) ;                         % Save to file.
+    fclose(fid) ;
+    A = tdfread('_temp.txt') ;
+    delete('_temp.txt') ;
+end
 
 %% Data-Error Check
 % If we have more voltage samples than current samples something is wrong
@@ -209,6 +239,8 @@ hLine2.LineStyle = '-';
 hold on;
 v = IV(1,max_power_ind);
 plot([v v], [0 max_power],'Color',[0 1 0]);
+grid on;
+grid minor;
 
 
 ##### SOURCE END #####

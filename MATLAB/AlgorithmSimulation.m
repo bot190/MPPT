@@ -12,7 +12,21 @@
 %% Flynn's Code to load Experimental Data
 % We're just calling another script here.  It reads a data file in a
 % terribly... unintuitive way, but it does work, and if it ain't broke...
-ivcurve
+clear; 
+fid = fopen('SolarSweepData.txt', 'r') ; % Open source file.
+if fid == -1
+    disp('ERROR 404: File Not Found') ;
+else
+    fgetl(fid) ;                                  % Read/discard line.
+    fgetl(fid) ;                                  % Read/discard line.
+    buffer = fread(fid, Inf) ;                    % Read rest of the file.
+    fclose(fid);
+    fid = fopen('_temp.txt', 'w')  ;   % Open destination file.
+    fwrite(fid, buffer) ;                         % Save to file.
+    fclose(fid) ;
+    A = tdfread('_temp.txt') ;
+    delete('_temp.txt') ;
+end
 
 %% Data-Error Check
 % If we have more voltage samples than current samples something is wrong
@@ -81,4 +95,6 @@ hLine2.LineStyle = '-';
 hold on;
 v = IV(1,max_power_ind);
 plot([v v], [0 max_power],'Color',[0 1 0]);
+grid on;
+grid minor;
 
