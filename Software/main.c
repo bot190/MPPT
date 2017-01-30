@@ -271,7 +271,7 @@ __interrupt void ADC10_ISR(void) {
         // I-MPPT
         case (0x0):
             i_mppt_samples[sample] = ADC10MEM;
-            // Only update Duty cycle at 1KHz
+            // Only update Duty cycle at 500Hz
             if (sample == 0) {
                 DCTL |= MPPT_CONTROL;
             }
@@ -300,7 +300,7 @@ __interrupt void ADC10_ISR(void) {
             ADC10CTL1 |= INCH_5;
             // Start ADC conversion
             ADC10CTL0 |= (ENC | ADC10SC);
-            // Enable D-OUT algorithm at 1KHz
+            // Enable D-OUT algorithm at 500Hz
             if (sample == 0) {
                 DCTL |= VOUT_CONTROL;
             }

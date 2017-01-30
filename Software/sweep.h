@@ -17,13 +17,14 @@
 
 // Defines
 // Increment duty cycle by 4/320 = 1.25%
-#define SWEEPINC 4
+#define SWEEPINC 2
 
 // Functions
 int sweep(volatile char *DCTL);
 
 // Variables
-long max_power;
+unsigned long max_power;
 int max_power_duty_cycle;
+int count;
 
 #endif /* SWEEP_H */

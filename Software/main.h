@@ -29,6 +29,7 @@
 #define INPUT_VOLTAGE_PRESENT 0x4
 #define SWEEP_COMPLETE 0x8
 #define PERTURB_DIRECTION 0x16
+#define BUTTON_PRESSED 0x32
 
 // Define Global Variables
 
@@ -56,7 +57,7 @@ extern unsigned long power;
 // 0x4   - Input Voltage present?
 // 0x8   - Sweep Complete (0 no, 1 yes)
 // 0x16  - Perturb Direction (0 down, 1 up)
-// 0x32  -
+// 0x32  - Button Pressed
 // 0x64  -
 // 0x128 -
 extern volatile char DCTL;

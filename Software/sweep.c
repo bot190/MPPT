@@ -18,16 +18,12 @@
 #include "sweep.h"
 #include "msp430.h"
 
-int sweep(volatile char *DCTL) {
 
-    // If button has been pressed, lets reset the Sweep control register
-    if (P1IN & BIT1) {
-        *DCTL &= ~SWEEP_COMPLETE;
-    }
+int sweep(volatile char *DCTL) {
     // Only need to do something if sweep is not complete
     if ((*DCTL & SWEEP_COMPLETE) == 0) {
         // Turn on LED at P1.6 when sweeping
-        P1OUT |= (BIT6);
+//        P1OUT |= (BIT6);
         power = i_mppt * v_mppt;
         // New power > old power, save duty cycle
         if (power > max_power) {
@@ -40,12 +36,30 @@ int sweep(volatile char *DCTL) {
             *DCTL |= SWEEP_COMPLETE;
             mppt_duty_cycle = max_power_duty_cycle;
         } else {
+            // If button has been pressed, lets reset the Sweep control register
+            if ((P1IN & BIT1) == 0) {
+                *DCTL |= BUTTON_PRESSED;
+                P1OUT |= (BIT6);
+                count = 0;
+            }
+            else if (*DCTL & BUTTON_PRESSED) {
+                if (count >= 10) {
+                    P1OUT &= (~BIT6);
+                    // Button is no longer pressed, so lets restart the sweep
+                    *DCTL &= ~BUTTON_PRESSED;
+                    count = 0;
+                    //*DCTL &= ~SWEEP_COMPLETE;
+                    mppt_duty_cycle += SWEEPINC;
+                } else {
+                   count++;
+                }
+            }
             // Haven't completed sweep yet, increment duty cycle
-            mppt_duty_cycle += SWEEPINC;
+            //mppt_duty_cycle += SWEEPINC;
         }
     } else {
         // Turn off LED at P1.6 when sweeping
-        P1OUT &= (~BIT6);
+//        P1OUT &= (~BIT6);
     }
 
     return mppt_duty_cycle;
