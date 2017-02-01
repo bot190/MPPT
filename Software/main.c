@@ -50,8 +50,8 @@ const int Divisor = 3;
 unsigned int sample;
 // Cycle counter for handling 0V input condition
 unsigned char zero_samples;
-// MPPT Duty Cycle
-int mppt_duty_cycle;
+// MPPT Duty Cycle - Start at 25%
+int mppt_duty_cycle=80;
 
 //Bitmask.  Moonorails.  (see header).
 volatile char DCTL;

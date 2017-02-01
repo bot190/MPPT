@@ -26,5 +26,6 @@ int sweep(volatile char *DCTL);
 unsigned long max_power;
 int max_power_duty_cycle;
 int count;
+int SlowDown;
 
 #endif /* SWEEP_H */
