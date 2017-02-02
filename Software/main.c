@@ -25,7 +25,7 @@
 // Define Global Variables
 
 // Store V-OUT from ADC
-int v_out;
+unsigned int v_out;
 // Store V-OUT samples
 int v_out_samples[AVERAGELENGTH];
 // Saturation-Flag for integral computation (part of PID)
@@ -35,11 +35,11 @@ long v_out_integral;
 // Integration "parameter" (constant, multiplies error in integral calculation)
 const int v_out_i = 1024;
 // Store V-MPPT average from ADC
-int v_mppt;
+unsigned int v_mppt;
 // Store V-MPPT samples
 int v_mppt_samples[AVERAGELENGTH];
 // Store I-MPPT average from ADC
-int i_mppt;
+unsigned int i_mppt;
 // Store I-MPPT samples
 int i_mppt_samples[AVERAGELENGTH];
 
@@ -163,7 +163,35 @@ void main(void) {
     // Code Body
     while (1) {
         // Should we adjust the MPPT duty cycle this loop?
-        if (DCTL & (MPPT_CONTROL)) {
+        if ((DCTL & (MPPT_CONTROL)) && (slow_down >= MPPT_DIV)) {
+            //Button handling
+            if ((P1IN & BIT1) == 0) {
+                DCTL |= BUTTON_PRESSED;
+                debounce_count = 0;
+            }
+            else if (DCTL & BUTTON_PRESSED) {
+                if (debounce_count >= 10) {
+                    P1OUT &= (~BIT6);
+                    // Button is no longer pressed
+                    DCTL &= ~BUTTON_PRESSED;
+                    switch (algorithm) {
+                        case MPPT_SWEEP:
+                            sweep_reset(&DCTL);
+                            break;
+                        case MPPT_PERTURBOBSERVE:
+                            //perturb_and_observe_reset(&DCTL);
+                            break;
+                        case MPPT_BETA:
+                            //beta_reset(&DCTL);
+                            break;
+                        case DEFAULT:
+                            break;
+                    }
+                    debounce_count = 0;
+                } else {
+                    debounce_count++;
+                }
+            }
             // Mark that this is complete
             DCTL = DCTL & (~MPPT_CONTROL);
             if (DCTL & INPUT_VOLTAGE_PRESENT) {
@@ -216,6 +244,8 @@ void main(void) {
                 }
             }
             /* HANDLE ZERO INPUT VOLTAGE */
+        } else {
+            slow_down++;
         }
         // Should we adjust the output duty cycle this loop?
         if (DCTL & VOUT_CONTROL) {

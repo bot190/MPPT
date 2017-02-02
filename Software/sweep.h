@@ -21,11 +21,10 @@
 
 // Functions
 int sweep(volatile char *DCTL);
+void sweep_reset(volatile char *DCTL);
 
 // Variables
 unsigned long max_power;
 int max_power_duty_cycle;
-int count;
-int SlowDown;
 
 #endif /* SWEEP_H */

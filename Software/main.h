@@ -20,7 +20,12 @@
 #define AVERAGELENGTH 8
 #define AVERAGELENGTHBIT 3
 
-#define V_SETPOINT 319	// Approximately 12V, with 750k and 45.3k resistors
+// Update frequency divider
+#define MPPT_DIV 10
+
+// Approximately 12V, with 750k and 75k resistors
+#define V_SETPOINT 319
+// Gives 50KHz duty cycle with 16MHz clock
 #define MAX_DUTY_CYCLE 320
 #define MIN_DUTY_CYCLE 0
 
@@ -33,20 +38,38 @@
 
 // Define Global Variables
 
-extern int v_out;							// Store V-OUT from ADC
-extern int v_out_samples[AVERAGELENGTH]; 	// Store V-OUT samples
-extern signed char v_out_sat;				// Saturation-Flag for integral computation (part of PID)
-extern long v_out_integral;				    // Value of Vout integral computation
-extern const int v_out_i;			        // Integration "parameter" (constant, multiplies error in integral calculation)
-extern int v_mppt;							// Store V-MPPT average from ADC
-extern int v_mppt_samples[AVERAGELENGTH]; 	// Store V-MPPT samples
-extern int i_mppt;							// Store I-MPPT average from ADC
-extern int i_mppt_samples[AVERAGELENGTH];	// Store I-MPPT samples
+// Store V-OUT from ADC
+extern unsigned int v_out;
+// Store V-OUT samples
+extern int v_out_samples[AVERAGELENGTH];
+// Saturation-Flag for integral computation (part of PID)
+extern signed char v_out_sat;
+// Value of Vout integral computation
+extern long v_out_integral;
+// Integration "parameter" (constant, multiplies error in integral calculation)
+extern const int v_out_i;
+// Store V-MPPT average from ADC
+extern unsigned int v_mppt;
+// Store V-MPPT samples
+extern int v_mppt_samples[AVERAGELENGTH];
+// Store I-MPPT average from ADC
+extern unsigned int i_mppt;
+// Store I-MPPT samples
+extern int i_mppt_samples[AVERAGELENGTH];
 
-extern const int Divisor;	    			// Proportional Constant = 1/2^Divisor
-extern unsigned int sample;				    // Counts the number of samples used for any average computation
-extern unsigned char zero_samples;			// Cycle counter for handling 0V input condition
-extern int mppt_duty_cycle;                 // MPPT Duty Cycle
+// Proportional Constant = 1/2^Divisor
+extern const int Divisor;
+// Counts the number of samples used for any average computation
+extern unsigned int sample;
+// Cycle counter for handling 0V input condition
+extern unsigned char zero_samples;
+// MPPT Duty Cycle
+extern int mppt_duty_cycle;
+
+// Button for debouncing
+unsigned int debounce_count;
+// Counter for slowing MPPT loop
+unsigned int slow_down;
 
 // Variables used by MPPT methods
 extern unsigned long power;
