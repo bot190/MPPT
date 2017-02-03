@@ -1,3 +1,5 @@
+#ifndef PERTURBOBSERVE_H
+#define PERTURBOBSERVE_H
 /******************************************************************************
  *                    Maximum Power Point Tracker (MPPT)
  *
@@ -15,12 +17,14 @@
  *****************************************************************************/
 
 // Defines
-// Perturb duty cycle by 4/320 = 1.25%
-#define PERTURBINC 4
-#define PERTURBDEADZONE 5
+// Perturb duty cycle by 2/320 = 0.0625%
+#define PERTURBINC 2
+#define PERTURBDEADZONE 1000
 
 // Functions
 int perturb_and_observe(volatile char *DCTL);
 
 // Global Variables
-long prev_power;
+unsigned long prev_power;
+
+#endif /* PERTURBOBSERVE_H */
