@@ -16,7 +16,7 @@
  *****************************************************************************/
 
 // Defines
-// Increment duty cycle by 4/320 = 1.25%
+// Increment duty cycle by 2/320 = 0.0625%
 #define SWEEPINC 2
 
 // Functions

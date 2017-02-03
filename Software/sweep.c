@@ -37,10 +37,10 @@ int sweep(volatile char *DCTL) {
             // Haven't completed sweep yet, increment duty cycle
             mppt_duty_cycle += SWEEPINC;
             if (mppt_duty_cycle % 16 == 0) {
-                // Turn on LED at P1.6 when sweeping
+                // Turn on LED at P1.6 every 5% duty cycle
                 P1OUT |= (BIT6);
             } else {
-                // Turn off LED at P1.6 when done sweeping
+                // Turn off LED at P1.6 on next cycle
                 P1OUT &= (~BIT6);
             }
         }
@@ -48,6 +48,10 @@ int sweep(volatile char *DCTL) {
     return mppt_duty_cycle;
 }
 
+/** \brief Sweep reset called when button is pushed
+ *
+ * Function handles restarting sweep, including resetting variables
+ */
 void sweep_reset(volatile char *DCTL) {
     max_power = 0;
     mppt_duty_cycle=80;
