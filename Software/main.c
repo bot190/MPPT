@@ -43,7 +43,6 @@ unsigned int i_mppt;
 // Store I-MPPT samples
 int i_mppt_samples[AVERAGELENGTH];
 
-
 // Proportional Constant = 1/2^Divisor
 const int Divisor = 3;
 // Counts the number of samples used for any average computation
@@ -167,29 +166,22 @@ void main(void) {
             //Button handling
             if ((P1IN & BIT1) == 0) {
                 DCTL |= BUTTON_PRESSED;
-                debounce_count = 0;
-            }
-            else if (DCTL & BUTTON_PRESSED) {
-                if (debounce_count >= 10) {
-                    P1OUT &= (~BIT6);
-                    // Button is no longer pressed
-                    DCTL &= ~BUTTON_PRESSED;
-                    switch (algorithm) {
-                        case MPPT_SWEEP:
-                            sweep_reset(&DCTL);
-                            break;
-                        case MPPT_PERTURBOBSERVE:
-                            //perturb_and_observe_reset(&DCTL);
-                            break;
-                        case MPPT_BETA:
-                            //beta_reset(&DCTL);
-                            break;
-                        case DEFAULT:
-                            break;
-                    }
-                    debounce_count = 0;
-                } else {
-                    debounce_count++;
+            } else if (DCTL & BUTTON_PRESSED) {
+                P1OUT &= (~BIT6);
+                // Button is no longer pressed
+                DCTL &= ~BUTTON_PRESSED;
+                switch (algorithm) {
+                    case MPPT_SWEEP:
+                        sweep_reset(&DCTL);
+                        break;
+                    case MPPT_PERTURBOBSERVE:
+                        //perturb_and_observe_reset(&DCTL);
+                        break;
+                    case MPPT_BETA:
+                        //beta_reset(&DCTL);
+                        break;
+                    case DEFAULT:
+                        break;
                 }
             }
             // Mark that this is complete
@@ -300,41 +292,41 @@ __interrupt void ADC10_ISR(void) {
     switch (ADC10CTL1 >> 12) {
         // I-MPPT
         case (0x0):
-            i_mppt_samples[sample] = ADC10MEM;
-            // Only update Duty cycle at 500Hz
-            if (sample == 0) {
-                DCTL |= MPPT_CONTROL;
-            }
-            // Increment sample count, roll over at 3
-            sample++;
-            if (sample == AVERAGELENGTH) {
-                sample = 0;
-            }
-            break;
+                            i_mppt_samples[sample] = ADC10MEM;
+        // Only update Duty cycle at 500Hz
+        if (sample == 0) {
+            DCTL |= MPPT_CONTROL;
+        }
+        // Increment sample count, roll over at 3
+        sample++;
+        if (sample == AVERAGELENGTH) {
+            sample = 0;
+        }
+        break;
         // V-MPPT
         case (0x5):
-            v_mppt_samples[sample] = ADC10MEM;
-            // Read	A0 / I-MPPT
-            ADC10CTL0 &= (~ENC);
-            ADC10CTL1 &= 0xFFF;
-            ADC10CTL1 |= INCH_0;
-            // Start ADC conversion
-            ADC10CTL0 |= (ENC | ADC10SC);
-            break;
+                            v_mppt_samples[sample] = ADC10MEM;
+        // Read	A0 / I-MPPT
+        ADC10CTL0 &= (~ENC);
+        ADC10CTL1 &= 0xFFF;
+        ADC10CTL1 |= INCH_0;
+        // Start ADC conversion
+        ADC10CTL0 |= (ENC | ADC10SC);
+        break;
         // V-OUT
         case (0x4):
-            v_out_samples[sample] = ADC10MEM;
-            // Read	A5 / V-MPPT
-            ADC10CTL0 &= (~ENC);
-            ADC10CTL1 &= 0xFFF;
-            ADC10CTL1 |= INCH_5;
-            // Start ADC conversion
-            ADC10CTL0 |= (ENC | ADC10SC);
-            // Enable D-OUT algorithm at 500Hz
-            if (sample == 0) {
-                DCTL |= VOUT_CONTROL;
-            }
-            break;
+                            v_out_samples[sample] = ADC10MEM;
+        // Read	A5 / V-MPPT
+        ADC10CTL0 &= (~ENC);
+        ADC10CTL1 &= 0xFFF;
+        ADC10CTL1 |= INCH_5;
+        // Start ADC conversion
+        ADC10CTL0 |= (ENC | ADC10SC);
+        // Enable D-OUT algorithm at 500Hz
+        if (sample == 0) {
+            DCTL |= VOUT_CONTROL;
+        }
+        break;
     }
 }
 

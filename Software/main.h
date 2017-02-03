@@ -66,8 +66,6 @@ extern unsigned char zero_samples;
 // MPPT Duty Cycle
 extern int mppt_duty_cycle;
 
-// Button for debouncing
-unsigned int debounce_count;
 // Counter for slowing MPPT loop
 unsigned int slow_down;
 
