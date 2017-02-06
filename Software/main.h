@@ -34,7 +34,8 @@
 #define INPUT_VOLTAGE_PRESENT 0x4
 #define SWEEP_COMPLETE 0x8
 #define PERTURB_DIRECTION 0x16
-#define BUTTON_PRESSED 0x32
+#define RESET_BUTTON_PRESSED 0x32
+#define ALGORITHM_BUTTON_PRESSED 0x64
 
 // Define Global Variables
 
@@ -78,8 +79,8 @@ extern unsigned long power;
 // 0x4   - Input Voltage present?
 // 0x8   - Sweep Complete (0 no, 1 yes)
 // 0x16  - Perturb Direction (0 down, 1 up)
-// 0x32  - Button Pressed
-// 0x64  -
+// 0x32  - Reset Button Pressed
+// 0x64  - Change Button Pressed
 // 0x128 -
 extern volatile char DCTL;
 
@@ -92,5 +93,8 @@ enum mppt_algorithm_type {
 
 int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
         long *x_integral, int Ki2, int n);
+
+void change_algorithm();
+void reset_algorithm();
 
 #endif /* MAIN_H */

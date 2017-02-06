@@ -18,7 +18,7 @@
 
 // Defines
 // Perturb duty cycle by 2/320 = 0.0625%
-#define PERTURBINC 2
+#define PERTURBINC 4
 #define PERTURBDEADZONE 1000
 
 // Functions

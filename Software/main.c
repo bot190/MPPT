@@ -59,7 +59,7 @@ volatile char DCTL;
 unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type algorithm = MPPT_SWEEP;
+enum mppt_algorithm_type algorithm = MPPT_PERTURBOBSERVE;
 
 void main(void) {
 
@@ -80,8 +80,8 @@ void main(void) {
 
     /*  PIN MAP
      * P1.0 - I - I-MPPT - A0
-     * P1.1 - O - Algorithm Reset Button
-     * P1.2 - O - UNUSED
+     * P1.1 - I - Algorithm Reset Button
+     * P1.2 - I - Algorithm Change Button
      * P1.3 - O - UNUSED
      * P1.4 - I - V-OUT - A4
      * P1.5 - I - V-MPPT - A5
@@ -108,9 +108,9 @@ void main(void) {
      * Configure unused pins
      */
     // Set unused P1 pins to output
-    P1DIR = (BIT2 | BIT3 | BIT6 | BIT7);
+    P1DIR = (BIT3 | BIT6 | BIT7);
     // Enable pull-up resistor for P1.1
-    P1REN = (BIT1);
+    P1REN = (BIT1 | BIT2);
     // Setting BIT1 uses the Pull-Up resistor instead of the pull down resistor
     P1OUT = (BIT1 | BIT2 | BIT3 | BIT6 | BIT7);
     // Set unused P2 pins to output
@@ -169,24 +169,16 @@ void main(void) {
                 slow_down = 0;
                 //Button handling
                 if ((P1IN & BIT1) == 0) {
-                    DCTL |= BUTTON_PRESSED;
-                } else if (DCTL & BUTTON_PRESSED) {
-                    P1OUT &= (~BIT6);
+                    DCTL |= RESET_BUTTON_PRESSED;
+                    DCTL |= ALGORITHM_BUTTON_PRESSED;
+                } else if (DCTL & RESET_BUTTON_PRESSED) {
                     // Button is no longer pressed
-                    DCTL &= ~BUTTON_PRESSED;
-                    switch (algorithm) {
-                        case MPPT_SWEEP:
-                            sweep_reset(&DCTL);
-                            break;
-                        case MPPT_PERTURBOBSERVE:
-                            //perturb_and_observe_reset(&DCTL);
-                            break;
-                        case MPPT_BETA:
-                            //beta_reset(&DCTL);
-                            break;
-                        case DEFAULT:
-                            break;
-                    }
+                    DCTL &= ~RESET_BUTTON_PRESSED;
+                    reset_algorithm();
+                } else if (DCTL & ALGORITHM_BUTTON_PRESSED) {
+                    // Button is no longer pressed
+                    DCTL &= ~ALGORITHM_BUTTON_PRESSED;
+                    change_algorithm();
                 }
                 if (DCTL & INPUT_VOLTAGE_PRESENT) {
                     // Get average current and voltage
@@ -295,41 +287,41 @@ __interrupt void ADC10_ISR(void) {
     switch (ADC10CTL1 >> 12) {
         // I-MPPT
         case (0x0):
-                                            i_mppt_samples[sample] = ADC10MEM;
-        // Only update Duty cycle at 500Hz
-        if (sample == 0) {
-            DCTL |= MPPT_CONTROL;
-        }
-        // Increment sample count, roll over at 3
-        sample++;
-        if (sample == AVERAGELENGTH) {
-            sample = 0;
-        }
-        break;
+            i_mppt_samples[sample] = ADC10MEM;
+            // Only update Duty cycle at 500Hz
+            if (sample == 0) {
+                DCTL |= MPPT_CONTROL;
+            }
+            // Increment sample count, roll over at 3
+            sample++;
+            if (sample == AVERAGELENGTH) {
+                sample = 0;
+            }
+            break;
         // V-MPPT
         case (0x5):
-                                            v_mppt_samples[sample] = ADC10MEM;
-        // Read	A0 / I-MPPT
-        ADC10CTL0 &= (~ENC);
-        ADC10CTL1 &= 0xFFF;
-        ADC10CTL1 |= INCH_0;
-        // Start ADC conversion
-        ADC10CTL0 |= (ENC | ADC10SC);
-        break;
-        // V-OUT
+            v_mppt_samples[sample] = ADC10MEM;
+            // Read	A0 / I-MPPT
+            ADC10CTL0 &= (~ENC);
+            ADC10CTL1 &= 0xFFF;
+            ADC10CTL1 |= INCH_0;
+            // Start ADC conversion
+            ADC10CTL0 |= (ENC | ADC10SC);
+            break;
+            // V-OUT
         case (0x4):
-                                            v_out_samples[sample] = ADC10MEM;
-        // Read	A5 / V-MPPT
-        ADC10CTL0 &= (~ENC);
-        ADC10CTL1 &= 0xFFF;
-        ADC10CTL1 |= INCH_5;
-        // Start ADC conversion
-        ADC10CTL0 |= (ENC | ADC10SC);
-        // Enable D-OUT algorithm at 500Hz
-        if (sample == 0) {
-            DCTL |= VOUT_CONTROL;
-        }
-        break;
+            v_out_samples[sample] = ADC10MEM;
+            // Read	A5 / V-MPPT
+            ADC10CTL0 &= (~ENC);
+            ADC10CTL1 &= 0xFFF;
+            ADC10CTL1 |= INCH_5;
+            // Start ADC conversion
+            ADC10CTL0 |= (ENC | ADC10SC);
+            // Enable D-OUT algorithm at 500Hz
+            if (sample == 0) {
+                DCTL |= VOUT_CONTROL;
+            }
+            break;
     }
 }
 
@@ -362,4 +354,35 @@ int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
         x = (e >> n) + (int) (*x_integral >> 16);
     }
     return x;
+}
+
+void change_algorithm() {
+    switch (algorithm) {
+        case MPPT_SWEEP:
+            algorithm = MPPT_PERTURBOBSERVE;
+            break;
+        case MPPT_PERTURBOBSERVE:
+            algorithm = MPPT_SWEEP;
+            break;
+        case MPPT_BETA:
+            break;
+        case DEFAULT:
+            break;
+    }
+}
+
+void reset_algorithm() {
+    switch (algorithm) {
+        case MPPT_SWEEP:
+            sweep_reset(&DCTL);
+            break;
+        case MPPT_PERTURBOBSERVE:
+            //perturb_and_observe_reset(&DCTL);
+            break;
+        case MPPT_BETA:
+            //beta_reset(&DCTL);
+            break;
+        case DEFAULT:
+            break;
+    }
 }
