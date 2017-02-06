@@ -162,82 +162,85 @@ void main(void) {
     // Code Body
     while (1) {
         // Should we adjust the MPPT duty cycle this loop?
-        if ((DCTL & (MPPT_CONTROL)) && (slow_down >= MPPT_DIV)) {
-            //Button handling
-            if ((P1IN & BIT1) == 0) {
-                DCTL |= BUTTON_PRESSED;
-            } else if (DCTL & BUTTON_PRESSED) {
-                P1OUT &= (~BIT6);
-                // Button is no longer pressed
-                DCTL &= ~BUTTON_PRESSED;
-                switch (algorithm) {
-                    case MPPT_SWEEP:
-                        sweep_reset(&DCTL);
-                        break;
-                    case MPPT_PERTURBOBSERVE:
-                        //perturb_and_observe_reset(&DCTL);
-                        break;
-                    case MPPT_BETA:
-                        //beta_reset(&DCTL);
-                        break;
-                    case DEFAULT:
-                        break;
-                }
-            }
+        if (DCTL & (MPPT_CONTROL)) {
             // Mark that this is complete
             DCTL = DCTL & (~MPPT_CONTROL);
-            if (DCTL & INPUT_VOLTAGE_PRESENT) {
-                // Get average current and voltage
-                i_mppt = v_mppt = 0;
-                for (i = AVERAGELENGTH; i > 0; i--) {
-                    // Calculate average I-MPPT
-                    i_mppt += i_mppt_samples[i - 1];
-                    // Calculate average V-MPPT
-                    v_mppt += v_mppt_samples[i - 1];
+            if (slow_down >= MPPT_DIV) {
+                slow_down = 0;
+                //Button handling
+                if ((P1IN & BIT1) == 0) {
+                    DCTL |= BUTTON_PRESSED;
+                } else if (DCTL & BUTTON_PRESSED) {
+                    P1OUT &= (~BIT6);
+                    // Button is no longer pressed
+                    DCTL &= ~BUTTON_PRESSED;
+                    switch (algorithm) {
+                        case MPPT_SWEEP:
+                            sweep_reset(&DCTL);
+                            break;
+                        case MPPT_PERTURBOBSERVE:
+                            //perturb_and_observe_reset(&DCTL);
+                            break;
+                        case MPPT_BETA:
+                            //beta_reset(&DCTL);
+                            break;
+                        case DEFAULT:
+                            break;
+                    }
                 }
-                i_mppt = i_mppt >> AVERAGELENGTHBIT;
-                v_mppt = v_mppt >> AVERAGELENGTHBIT;
-                /* HANDLE ZERO INPUT VOLTAGE */
-                if (v_mppt < 15) {
-                    if (zero_samples >= 20) {
-                        zero_samples = 0;
-                        // Not detecting a voltage
-                        DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
-                        // Shut off VOUT buck converter for now
-                        TA1CCR2 = 0;
-                    } else {
-                        zero_samples++;
+                if (DCTL & INPUT_VOLTAGE_PRESENT) {
+                    // Get average current and voltage
+                    i_mppt = v_mppt = 0;
+                    for (i = AVERAGELENGTH; i > 0; i--) {
+                        // Calculate average I-MPPT
+                        i_mppt += i_mppt_samples[i - 1];
+                        // Calculate average V-MPPT
+                        v_mppt += v_mppt_samples[i - 1];
+                    }
+                    i_mppt = i_mppt >> AVERAGELENGTHBIT;
+                    v_mppt = v_mppt >> AVERAGELENGTHBIT;
+                    /* HANDLE ZERO INPUT VOLTAGE */
+                    if (v_mppt < 15) {
+                        if (zero_samples >= 20) {
+                            zero_samples = 0;
+                            // Not detecting a voltage
+                            DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
+                            // Shut off VOUT buck converter for now
+                            TA1CCR2 = 0;
+                        } else {
+                            zero_samples++;
+                        }
+                    }
+                    /* HANDLE ZERO INPUT VOLTAGE */
+                    // Run MPPT algorithm (Set duty cycle - TA1CCR1)
+                    switch (algorithm) {
+                        case MPPT_SWEEP:
+                            TA1CCR1 = sweep(&DCTL);
+                            break;
+                        case MPPT_PERTURBOBSERVE:
+                            TA1CCR1 = perturb_and_observe(&DCTL);
+                            break;
+                        case MPPT_BETA:
+                            TA1CCR1 = beta(&DCTL);
+                            break;
+                        case DEFAULT:
+                            break;
                     }
                 }
                 /* HANDLE ZERO INPUT VOLTAGE */
-                // Run MPPT algorithm (Set duty cycle - TA1CCR1)
-                switch (algorithm) {
-                    case MPPT_SWEEP:
-                        TA1CCR1 = sweep(&DCTL);
-                        break;
-                    case MPPT_PERTURBOBSERVE:
-                        TA1CCR1 = perturb_and_observe(&DCTL);
-                        break;
-                    case MPPT_BETA:
-                        TA1CCR1 = beta(&DCTL);
-                        break;
-                    case DEFAULT:
-                        break;
+                else {
+                    zero_samples++;
+                    if (zero_samples >= 100) {
+                        DCTL |= INPUT_VOLTAGE_PRESENT;
+                        // Zero integrals to avoid unnecessarily integrated error
+                        v_out_integral = 0;
+                        zero_samples = 0;
+                    }
                 }
+                /* HANDLE ZERO INPUT VOLTAGE */
+            } else {
+                slow_down++;
             }
-            /* HANDLE ZERO INPUT VOLTAGE */
-            else {
-                zero_samples++;
-                if (zero_samples >= 100) {
-                    DCTL |= INPUT_VOLTAGE_PRESENT;
-                    // Zero integrals to avoid unnecessarily integrated error
-                    v_out_integral = 0;
-                    zero_samples = 0;
-                }
-            }
-            /* HANDLE ZERO INPUT VOLTAGE */
-        } else {
-            slow_down++;
         }
         // Should we adjust the output duty cycle this loop?
         if (DCTL & VOUT_CONTROL) {
@@ -292,7 +295,7 @@ __interrupt void ADC10_ISR(void) {
     switch (ADC10CTL1 >> 12) {
         // I-MPPT
         case (0x0):
-                            i_mppt_samples[sample] = ADC10MEM;
+                                            i_mppt_samples[sample] = ADC10MEM;
         // Only update Duty cycle at 500Hz
         if (sample == 0) {
             DCTL |= MPPT_CONTROL;
@@ -305,7 +308,7 @@ __interrupt void ADC10_ISR(void) {
         break;
         // V-MPPT
         case (0x5):
-                            v_mppt_samples[sample] = ADC10MEM;
+                                            v_mppt_samples[sample] = ADC10MEM;
         // Read	A0 / I-MPPT
         ADC10CTL0 &= (~ENC);
         ADC10CTL1 &= 0xFFF;
@@ -315,7 +318,7 @@ __interrupt void ADC10_ISR(void) {
         break;
         // V-OUT
         case (0x4):
-                            v_out_samples[sample] = ADC10MEM;
+                                            v_out_samples[sample] = ADC10MEM;
         // Read	A5 / V-MPPT
         ADC10CTL0 &= (~ENC);
         ADC10CTL1 &= 0xFFF;

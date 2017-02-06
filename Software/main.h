@@ -21,7 +21,7 @@
 #define AVERAGELENGTHBIT 3
 
 // Update frequency divider
-#define MPPT_DIV 10
+#define MPPT_DIV 20
 
 // Approximately 12V, with 750k and 75k resistors
 #define V_SETPOINT 319
