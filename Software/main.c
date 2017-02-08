@@ -54,12 +54,14 @@ int mppt_duty_cycle=80;
 
 //Bitmask.  Moonorails.  (see header).
 volatile char DCTL;
+// BITMASK of Buttons being pressed
+volatile char BUTTONS;
 
 // Calculated power draw from MPPT Buck Converter
 unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type algorithm = MPPT_PERTURBOBSERVE;
+enum mppt_algorithm_type algorithm = MPPT_SWEEP;
 
 void main(void) {
 
@@ -162,24 +164,13 @@ void main(void) {
     // Code Body
     while (1) {
         // Should we adjust the MPPT duty cycle this loop?
-        if (DCTL & (MPPT_CONTROL)) {
+        if (DCTL & MPPT_CONTROL) {
             // Mark that this is complete
-            DCTL = DCTL & (~MPPT_CONTROL);
+            DCTL &= ~MPPT_CONTROL;
             if (slow_down >= MPPT_DIV) {
                 slow_down = 0;
-                //Button handling
-                if ((P1IN & BIT1) == 0) {
-                    DCTL |= RESET_BUTTON_PRESSED;
-                    DCTL |= ALGORITHM_BUTTON_PRESSED;
-                } else if (DCTL & RESET_BUTTON_PRESSED) {
-                    // Button is no longer pressed
-                    DCTL &= ~RESET_BUTTON_PRESSED;
-                    reset_algorithm();
-                } else if (DCTL & ALGORITHM_BUTTON_PRESSED) {
-                    // Button is no longer pressed
-                    DCTL &= ~ALGORITHM_BUTTON_PRESSED;
-                    change_algorithm();
-                }
+                // Handle buttons
+                button_handler();
                 if (DCTL & INPUT_VOLTAGE_PRESENT) {
                     // Get average current and voltage
                     i_mppt = v_mppt = 0;
@@ -196,7 +187,7 @@ void main(void) {
                         if (zero_samples >= 20) {
                             zero_samples = 0;
                             // Not detecting a voltage
-                            DCTL = DCTL & (~INPUT_VOLTAGE_PRESENT);
+                            DCTL &= ~INPUT_VOLTAGE_PRESENT;
                             // Shut off VOUT buck converter for now
                             TA1CCR2 = 0;
                         } else {
@@ -222,7 +213,7 @@ void main(void) {
                 /* HANDLE ZERO INPUT VOLTAGE */
                 else {
                     zero_samples++;
-                    if (zero_samples >= 100) {
+                    if (zero_samples >= 20) {
                         DCTL |= INPUT_VOLTAGE_PRESENT;
                         // Zero integrals to avoid unnecessarily integrated error
                         v_out_integral = 0;
@@ -237,7 +228,7 @@ void main(void) {
         // Should we adjust the output duty cycle this loop?
         if (DCTL & VOUT_CONTROL) {
             // Mark that this is complete
-            DCTL = DCTL & (~VOUT_CONTROL);
+            DCTL &= ~VOUT_CONTROL;
             if (DCTL & INPUT_VOLTAGE_PRESENT) {
                 v_out = 0;
                 for (i = AVERAGELENGTH; i > 0; i--) {
@@ -268,7 +259,7 @@ __interrupt void timerA0_ISR(void) {
          * Configure ADC to measure V-OUT
          */
         // Read	A4 / V-OUT
-        ADC10CTL0 &= (~ENC);
+        ADC10CTL0 &= ~ENC;
         ADC10CTL1 &= 0xFFF;
         ADC10CTL1 |= INCH_4;
         // Start ADC conversion
@@ -302,7 +293,7 @@ __interrupt void ADC10_ISR(void) {
         case (0x5):
             v_mppt_samples[sample] = ADC10MEM;
             // Read	A0 / I-MPPT
-            ADC10CTL0 &= (~ENC);
+            ADC10CTL0 &= ~ENC;
             ADC10CTL1 &= 0xFFF;
             ADC10CTL1 |= INCH_0;
             // Start ADC conversion
@@ -312,7 +303,7 @@ __interrupt void ADC10_ISR(void) {
         case (0x4):
             v_out_samples[sample] = ADC10MEM;
             // Read	A5 / V-MPPT
-            ADC10CTL0 &= (~ENC);
+            ADC10CTL0 &= ~ENC;
             ADC10CTL1 &= 0xFFF;
             ADC10CTL1 |= INCH_5;
             // Start ADC conversion
@@ -384,5 +375,23 @@ void reset_algorithm() {
             break;
         case DEFAULT:
             break;
+    }
+}
+
+void button_handler() {
+    //Button handling
+    if ((P1IN & BIT1) == 0) {
+        BUTTONS |= RESET_BUTTON_PRESSED;
+    } else if (BUTTONS & RESET_BUTTON_PRESSED) {
+        // Button is no longer pressed
+        BUTTONS &= ~RESET_BUTTON_PRESSED;
+        reset_algorithm();
+    }
+    if ((P1IN & BIT2) == 0) {
+        BUTTONS |= ALGORITHM_BUTTON_PRESSED;
+    } else if (BUTTONS & ALGORITHM_BUTTON_PRESSED) {
+        // Button is no longer pressed
+        BUTTONS &= ~ALGORITHM_BUTTON_PRESSED;
+        change_algorithm();
     }
 }

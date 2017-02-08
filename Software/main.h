@@ -34,8 +34,10 @@
 #define INPUT_VOLTAGE_PRESENT 0x4
 #define SWEEP_COMPLETE 0x8
 #define PERTURB_DIRECTION 0x16
-#define RESET_BUTTON_PRESSED 0x32
-#define ALGORITHM_BUTTON_PRESSED 0x64
+
+
+#define RESET_BUTTON_PRESSED 0x1
+#define ALGORITHM_BUTTON_PRESSED 0x2
 
 // Define Global Variables
 
@@ -84,6 +86,12 @@ extern unsigned long power;
 // 0x128 -
 extern volatile char DCTL;
 
+
+// Track button status
+// 0x1  - Reset Button
+// 0x2  - Change Button
+extern volatile char BUTTONS;
+
 enum mppt_algorithm_type {
     DEFAULT = 0,
     MPPT_SWEEP,
@@ -94,6 +102,7 @@ enum mppt_algorithm_type {
 int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
         long *x_integral, int Ki2, int n);
 
+void button_handler();
 void change_algorithm();
 void reset_algorithm();
 
