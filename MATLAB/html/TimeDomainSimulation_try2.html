@@ -1,0 +1,286 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>MATLAB script to prove functionality of MPPT algorithm</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-02-07"><meta name="DC.source" content="TimeDomainSimulation_try2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>MATLAB script to prove functionality of MPPT algorithm</h1><!--introduction--><p>Authors: Andrew Flynn, Ben Beauregard, Johnathan Adams</p><p>This script attempts to imulate the functionality of the maximum power point tracking algorithm built in C for use with the projects hardware. This is meant as a proof that the concept is sound and the algorithm will track theoretical and actual maximum power point data, not as an actual implementation to run on the hardware. As such, certain things are abstracted, such as duty cycle setting and tracking, ISRs, and other MCU-specific functionality.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Flynn's Code to load Experimental Data</a></li><li><a href="#2">Data-Error Check</a></li><li><a href="#3">Declaration of Variables</a></li><li><a href="#4">Data Resolution Error Check</a></li><li><a href="#5">Define Simulation Parameters</a></li><li><a href="#6">Time-Domain Simulation Loop</a></li><li><a href="#7">Graph the Simulation Results</a></li></ul></div><h2>Flynn's Code to load Experimental Data<a name="1"></a></h2><p>We're just calling another script here.  It reads a data file in a terribly... unintuitive way, but it does work, and if it ain't broke...</p><pre class="codeinput">clear;
+fid = fopen(<span class="string">'Full_Data.txt'</span>, <span class="string">'r'</span>) ; <span class="comment">% Open source file.</span>
+<span class="keyword">if</span> fid == -1
+    disp(<span class="string">'ERROR 404: File Not Found'</span>) ;
+<span class="keyword">else</span>
+    fgetl(fid) ;                                  <span class="comment">% Read/discard line.</span>
+    fgetl(fid) ;                                  <span class="comment">% Read/discard line.</span>
+    buffer = fread(fid, Inf) ;                    <span class="comment">% Read rest of the file.</span>
+    fclose(fid);
+    fid = fopen(<span class="string">'_temp.txt'</span>, <span class="string">'w'</span>)  ;   <span class="comment">% Open destination file.</span>
+    fwrite(fid, buffer) ;                         <span class="comment">% Save to file.</span>
+    fclose(fid) ;
+    A = tdfread(<span class="string">'_temp.txt'</span>) ;
+    delete(<span class="string">'_temp.txt'</span>) ;
+<span class="keyword">end</span>
+</pre><h2>Data-Error Check<a name="2"></a></h2><p>If we have more voltage samples than current samples something is wrong and should probably be fixed before the simulation is continued.</p><pre class="codeinput"><span class="keyword">if</span> length(A.Voltage_0x5BV0x5D) ~= length(A.x0x23_Current_0x5BA0x5D)
+    error(<span class="string">'Sample Size Mismatch. What are you doing?'</span>)
+<span class="keyword">else</span>
+   IV = [A.Voltage_0x5BV0x5D.'; A.x0x23_Current_0x5BA0x5D.'];
+<span class="keyword">end</span>
+</pre><h2>Declaration of Variables<a name="3"></a></h2><p>These Variables are hereby independant from the monarch of Great Britan.</p><pre class="codeinput">sim_time = 0; <span class="comment">% tracks current elapsed time in simulation, us</span>
+Tsample = 1 / 500; <span class="comment">% 500Hz MPPT sample rate, we want the period though</span>
+num_samp = length(IV); <span class="comment">% Number of samples in performance data</span>
+delta_dc = 100 * (2 / 320); <span class="comment">% Duty cycle increment value</span>
+duty_cycle = delta_dc; <span class="comment">% Current duty cycle in simulation (range 0 - 100)</span>
+power = 0; <span class="comment">% Holds current power point</span>
+mpp_dc = 0; <span class="comment">% duty cycle at maximum power point</span>
+mpp = 0; <span class="comment">% Power level at maximum power point</span>
+samp_idx = 1; <span class="comment">% Array Index of current voltage/current sample</span>
+sim_data = []; <span class="comment">% Array to store simulation results.</span>
+finished = 0; <span class="comment">% Flag set when sweep is finished to prevent further sweeping</span>
+</pre><h2>Data Resolution Error Check<a name="4"></a></h2><p>Confirm that we have enough experimental data to support the duty cycle increment value given to the simulation.  If not, abort, because simulation won't give accurate results.</p><pre class="codeinput"><span class="keyword">if</span> length(A.Voltage_0x5BV0x5D) &lt; 100 / delta_dc
+    error([<span class="string">'Not enough simulation data points to match given duty '</span><span class="keyword">...</span>
+        <span class="string">'cycle change rate.'</span>]);
+<span class="keyword">end</span>
+</pre><h2>Define Simulation Parameters<a name="5"></a></h2><p>These define the nature of the time-domain loop. This is not robust at all.  Simulation time must be evenly divisible by Tsample or simulation will derp.</p><pre class="codeinput">disp([<span class="string">'Recommended Simulation Time (1 full sweep): '</span>,<span class="keyword">...</span>
+    num2str(Tsample * 160 * 1e3),<span class="string">'ms.'</span>]);
+sim_len = input(<span class="string">'Please enter the time length of the simulation, in ms: '</span>);
+<span class="keyword">while</span> sim_len &lt; Tsample * 10e3
+    tmpstr = [<span class="string">'Sim. Length too small.  Minimum length is '</span>,<span class="keyword">...</span>
+        num2str(Tsample * 10e3),<span class="string">'. Please try again: '</span>];
+    sim_len = input(tmpstr);
+<span class="keyword">end</span>
+sim_res = input(<span class="string">'Please enter the time step for the simulation, in us: '</span>);
+<span class="keyword">while</span> sim_res &gt; Tsample * 1e6 / 2 || sim_res &lt; .001
+    tmpstr = [<span class="string">'Resolution invalid.  Maximum resolution is '</span>,<span class="keyword">...</span>
+        num2str(Tsample * 1e6 / 2),<span class="keyword">...</span>
+        <span class="string">'us, minimum is 0.001us. Please try again: '</span>];
+    sim_res = input(tmpstr);
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Recommended Simulation Time (1 full sweep): 320ms.
+</pre><pre class="codeoutput error">Error using input
+Cannot call INPUT from EVALC.
+
+Error in TimeDomainSimulation_try2 (line 69)
+sim_len = input('Please enter the time length of the simulation, in ms: ');
+</pre><h2>Time-Domain Simulation Loop<a name="6"></a></h2><p>While the simulation time is less than the requested time, continue simulating.</p><pre class="codeinput"><span class="keyword">while</span> sim_time &lt; sim_len * 1e-3
+    <span class="comment">% Change Duty Cycle at Given Interval</span>
+    <span class="comment">% mod(x,y) doesn't seem to give actual zero answers... derp...</span>
+    <span class="keyword">if</span> mod(sim_time,Tsample) &lt; 1e-12 &amp;&amp; ~ finished
+        disp(<span class="string">'Simultion Tick'</span>);
+        <span class="comment">% Increment Duty Cycle</span>
+        <span class="keyword">if</span> duty_cycle &gt;= 100 - delta_dc
+            duty_cycle = mpp_dc;
+            finished = 1; <span class="comment">% Mark end of sweep</span>
+        <span class="keyword">else</span>
+            duty_cycle = duty_cycle + delta_dc;
+        <span class="keyword">end</span>
+        <span class="comment">% Check if MPP</span>
+        <span class="comment">% This indexing code is a bit wat</span>
+        samp_idx = round(length(A.Voltage_0x5BV0x5D) * duty_cycle / 100);
+        power = A.Voltage_0x5BV0x5D(samp_idx) *<span class="keyword">...</span>
+            A.x0x23_Current_0x5BA0x5D(samp_idx);
+        <span class="keyword">if</span> power &gt; mpp
+            mpp = power;
+            mpp_dc = duty_cycle;
+        <span class="keyword">end</span>
+    <span class="keyword">end</span>
+    <span class="comment">% Data Logging</span>
+    sim_data = [sim_data;[sim_time,duty_cycle,power,<span class="keyword">...</span>
+        A.Voltage_0x5BV0x5D(samp_idx),<span class="keyword">...</span>
+        A.x0x23_Current_0x5BA0x5D(samp_idx)]]; <span class="comment">% Rewrite this later</span>
+    <span class="comment">% Increment simulaiton time and restart loop</span>
+    sim_time = sim_time + sim_res * 1e-6;
+<span class="keyword">end</span>
+</pre><h2>Graph the Simulation Results<a name="7"></a></h2><pre class="codeinput">[Ax,H1,H2] = plotyy(sim_data(:,1),sim_data(:,2),sim_data(:,1),<span class="keyword">...</span>
+    sim_data(:,3));
+title(<span class="string">'Power and Duty Cycle versus Time'</span>);
+xlabel(<span class="string">'Time, [s]'</span>);
+ylabel(Ax(1),<span class="string">'Duty Cycle, [%]'</span>);
+ylabel(Ax(2),<span class="string">'Power, [W]'</span>);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% MATLAB script to prove functionality of MPPT algorithm
+% Authors: Andrew Flynn, Ben Beauregard, Johnathan Adams
+%
+% This script attempts to imulate the functionality of the maximum power
+% point tracking algorithm built in C for use with the projects hardware.
+% This is meant as a proof that the concept is sound and the algorithm will
+% track theoretical and actual maximum power point data, not as an actual
+% implementation to run on the hardware. As such, certain things are
+% abstracted, such as duty cycle setting and tracking, ISRs, and other
+% MCU-specific functionality.
+
+%% Flynn's Code to load Experimental Data
+% We're just calling another script here.  It reads a data file in a
+% terribly... unintuitive way, but it does work, and if it ain't broke...
+clear; 
+fid = fopen('Full_Data.txt', 'r') ; % Open source file.
+if fid == -1
+    disp('ERROR 404: File Not Found') ;
+else
+    fgetl(fid) ;                                  % Read/discard line.
+    fgetl(fid) ;                                  % Read/discard line.
+    buffer = fread(fid, Inf) ;                    % Read rest of the file.
+    fclose(fid);
+    fid = fopen('_temp.txt', 'w')  ;   % Open destination file.
+    fwrite(fid, buffer) ;                         % Save to file.
+    fclose(fid) ;
+    A = tdfread('_temp.txt') ;
+    delete('_temp.txt') ;
+end
+
+%% Data-Error Check
+% If we have more voltage samples than current samples something is wrong
+% and should probably be fixed before the simulation is continued.
+if length(A.Voltage_0x5BV0x5D) ~= length(A.x0x23_Current_0x5BA0x5D)
+    error('Sample Size Mismatch. What are you doing?')
+else
+   IV = [A.Voltage_0x5BV0x5D.'; A.x0x23_Current_0x5BA0x5D.'];
+end
+
+%% Declaration of Variables
+% These Variables are hereby independant from the monarch of Great Britan.
+sim_time = 0; % tracks current elapsed time in simulation, us
+Tsample = 1 / 500; % 500Hz MPPT sample rate, we want the period though
+num_samp = length(IV); % Number of samples in performance data
+delta_dc = 100 * (2 / 320); % Duty cycle increment value
+duty_cycle = delta_dc; % Current duty cycle in simulation (range 0 - 100)
+power = 0; % Holds current power point
+mpp_dc = 0; % duty cycle at maximum power point
+mpp = 0; % Power level at maximum power point
+samp_idx = 1; % Array Index of current voltage/current sample
+sim_data = []; % Array to store simulation results.
+finished = 0; % Flag set when sweep is finished to prevent further sweeping
+
+%% Data Resolution Error Check
+% Confirm that we have enough experimental data to support the duty cycle
+% increment value given to the simulation.  If not, abort, because
+% simulation won't give accurate results.
+if length(A.Voltage_0x5BV0x5D) < 100 / delta_dc
+    error(['Not enough simulation data points to match given duty '...
+        'cycle change rate.']);
+end
+
+%% Define Simulation Parameters
+% These define the nature of the time-domain loop.
+% This is not robust at all.  Simulation time must be evenly divisible by
+% Tsample or simulation will derp.
+disp(['Recommended Simulation Time (1 full sweep): ',...
+    num2str(Tsample * 160 * 1e3),'ms.']);
+sim_len = input('Please enter the time length of the simulation, in ms: ');
+while sim_len < Tsample * 10e3
+    tmpstr = ['Sim. Length too small.  Minimum length is ',...
+        num2str(Tsample * 10e3),'. Please try again: '];
+    sim_len = input(tmpstr);
+end
+sim_res = input('Please enter the time step for the simulation, in us: ');
+while sim_res > Tsample * 1e6 / 2 || sim_res < .001
+    tmpstr = ['Resolution invalid.  Maximum resolution is ',...
+        num2str(Tsample * 1e6 / 2),...
+        'us, minimum is 0.001us. Please try again: '];
+    sim_res = input(tmpstr);
+end
+
+%% Time-Domain Simulation Loop
+% While the simulation time is less than the requested time, continue
+% simulating.
+while sim_time < sim_len * 1e-3
+    % Change Duty Cycle at Given Interval
+    % mod(x,y) doesn't seem to give actual zero answers... derp...
+    if mod(sim_time,Tsample) < 1e-12 && ~ finished
+        disp('Simultion Tick');
+        % Increment Duty Cycle
+        if duty_cycle >= 100 - delta_dc
+            duty_cycle = mpp_dc;
+            finished = 1; % Mark end of sweep
+        else
+            duty_cycle = duty_cycle + delta_dc;
+        end
+        % Check if MPP
+        % This indexing code is a bit wat
+        samp_idx = round(length(A.Voltage_0x5BV0x5D) * duty_cycle / 100);
+        power = A.Voltage_0x5BV0x5D(samp_idx) *...
+            A.x0x23_Current_0x5BA0x5D(samp_idx);
+        if power > mpp
+            mpp = power;
+            mpp_dc = duty_cycle;
+        end
+    end
+    % Data Logging
+    sim_data = [sim_data;[sim_time,duty_cycle,power,...
+        A.Voltage_0x5BV0x5D(samp_idx),...
+        A.x0x23_Current_0x5BA0x5D(samp_idx)]]; % Rewrite this later
+    % Increment simulaiton time and restart loop
+    sim_time = sim_time + sim_res * 1e-6;
+end
+
+%% Graph the Simulation Results
+[Ax,H1,H2] = plotyy(sim_data(:,1),sim_data(:,2),sim_data(:,1),...
+    sim_data(:,3));
+title('Power and Duty Cycle versus Time');
+xlabel('Time, [s]');
+ylabel(Ax(1),'Duty Cycle, [%]');
+ylabel(Ax(2),'Power, [W]');
+
+##### SOURCE END #####
+--></body></html>
