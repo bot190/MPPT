@@ -19,7 +19,7 @@
 #include <limits.h>
 #include "main.h"
 #include "sweep.h"
-#include "beta.h"
+//#include "beta.h"
 #include "perturbobserve.h"
 
 // Define Global Variables
@@ -52,7 +52,7 @@ unsigned char zero_samples;
 // MPPT Duty Cycle - Start at 25%
 int mppt_duty_cycle=80;
 
-//Bitmask.  Moonorails.  (see header).
+//Bitmask (see header).
 volatile char DCTL;
 // BITMASK of Buttons being pressed
 volatile char BUTTONS;
@@ -61,7 +61,7 @@ volatile char BUTTONS;
 unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type algorithm = MPPT_SWEEP;
+enum mppt_algorithm_type algorithm = MPPT_PERTURBOBSERVE;
 
 void main(void) {
 
@@ -114,7 +114,7 @@ void main(void) {
     // Enable pull-up resistor for P1.1
     P1REN = (BIT1 | BIT2);
     // Setting BIT1 uses the Pull-Up resistor instead of the pull down resistor
-    P1OUT = (BIT1 | BIT2 | BIT3 | BIT6 | BIT7);
+    P1OUT = (BIT1 | BIT2 | BIT3 | BIT7);
     // Set unused P2 pins to output
     P2DIR |= (BIT0 | BIT2 | BIT3 | BIT5 | BIT6 | BIT7);
     // Set all P3 pins to output
@@ -204,7 +204,7 @@ void main(void) {
                             TA1CCR1 = perturb_and_observe(&DCTL);
                             break;
                         case MPPT_BETA:
-                            TA1CCR1 = beta(&DCTL);
+//                            TA1CCR1 = beta(&DCTL);
                             break;
                         case DEFAULT:
                             break;
@@ -369,6 +369,7 @@ void reset_algorithm() {
             break;
         case MPPT_PERTURBOBSERVE:
             //perturb_and_observe_reset(&DCTL);
+            mppt_duty_cycle=80;
             break;
         case MPPT_BETA:
             //beta_reset(&DCTL);

@@ -36,6 +36,7 @@ int sweep(volatile char *DCTL) {
         } else {
             // Haven't completed sweep yet, increment duty cycle
             mppt_duty_cycle += SWEEPINC;
+            /* TESTING CODE */
             if (mppt_duty_cycle % 16 == 0) {
                 // Turn on LED at P1.6 every 5% duty cycle
                 P1OUT |= (BIT6);
@@ -43,6 +44,7 @@ int sweep(volatile char *DCTL) {
                 // Turn off LED at P1.6 on next cycle
                 P1OUT &= (~BIT6);
             }
+            /* TESTING CODE */
         }
     }
     return mppt_duty_cycle;
