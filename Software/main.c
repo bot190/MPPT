@@ -61,7 +61,12 @@ volatile char BUTTONS;
 unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type algorithm = MPPT_PERTURBOBSERVE;
+enum mppt_algorithm_type_enum algorithm = MPPT_PERTURBOBSERVE;
+
+// State variable for MPPT state machine
+enum mppt_states_enum mppt_state = MPPT_WAIT;
+// State variable for VOUT state machine
+enum vout_states_enum vout_state = VOUT_WAIT;
 
 void main(void) {
 
@@ -153,7 +158,7 @@ void main(void) {
     // Use ACLK, /1 divider, Up mode
     TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
     // 12KHz clock, into 3 gives 4KHz
-    TA0CCR0 = (3);
+    TA0CCR0 = (LOW_FQ_CLOCK);
 
     //Global Interrupt Enable
     _BIS_SR(GIE);
@@ -163,86 +168,123 @@ void main(void) {
 
     // Code Body
     while (1) {
-        // Should we adjust the MPPT duty cycle this loop?
-        if (DCTL & MPPT_CONTROL) {
-            // Mark that this is complete
-            DCTL &= ~MPPT_CONTROL;
-            if (slow_down >= MPPT_DIV) {
-                slow_down = 0;
-                // Handle buttons
-                button_handler();
+        switch (mppt_state) {
+            case MPPT_WAIT:
+                if (DCTL & MPPT_CONTROL) {
+                    // Mark that we've moved on
+                    DCTL &= ~MPPT_CONTROL;
+                    // If we have fresh data, move on to limit run speed
+                    mppt_state = MPPT_LIMIT_SPEED;
+                }
+                break;
+            case MPPT_LIMIT_SPEED:
+                // Desired Frequency / (12KHz / TA0CCR0 / 8)
+                if (slow_down >= MPPT_LIMITER) {
+                    slow_down = 0;
+                    // Call button handler
+                    button_handler();
+                    // Check for low voltage
+                    mppt_state = MPPT_LOW_VOLT_HANDLER;
+                } else {
+                    slow_down++;
+                    mppt_state = MPPT_WAIT;
+                }
+                break;
+            case MPPT_LOW_VOLT_HANDLER:
                 if (DCTL & INPUT_VOLTAGE_PRESENT) {
-                    // Get average current and voltage
-                    i_mppt = v_mppt = 0;
-                    for (i = AVERAGELENGTH; i > 0; i--) {
-                        // Calculate average I-MPPT
-                        i_mppt += i_mppt_samples[i - 1];
-                        // Calculate average V-MPPT
-                        v_mppt += v_mppt_samples[i - 1];
-                    }
-                    i_mppt = i_mppt >> AVERAGELENGTHBIT;
-                    v_mppt = v_mppt >> AVERAGELENGTHBIT;
-                    /* HANDLE ZERO INPUT VOLTAGE */
-                    if (v_mppt < 15) {
-                        if (zero_samples >= 20) {
-                            zero_samples = 0;
-                            // Not detecting a voltage
-                            DCTL &= ~INPUT_VOLTAGE_PRESENT;
-                            // Shut off VOUT buck converter for now
-                            TA1CCR2 = 0;
-                        } else {
-                            zero_samples++;
-                        }
-                    }
-                    /* HANDLE ZERO INPUT VOLTAGE */
-                    // Run MPPT algorithm (Set duty cycle - TA1CCR1)
-                    switch (algorithm) {
-                        case MPPT_SWEEP:
-                            TA1CCR1 = sweep(&DCTL);
-                            break;
-                        case MPPT_PERTURBOBSERVE:
-                            TA1CCR1 = perturb_and_observe(&DCTL);
-                            break;
-                        case MPPT_BETA:
-//                            TA1CCR1 = beta(&DCTL);
-                            break;
-                        case DEFAULT:
-                            break;
-                    }
+                    // Calculate new data before Low Volt check
+                    mppt_state = MPPT_AVERAGE;
+                } else {
+                    // Handle Low Volt flag
+                    mppt_state = MPPT_LOW_VOLT_DETECTED;
                 }
-                /* HANDLE ZERO INPUT VOLTAGE */
-                else {
-                    zero_samples++;
+                break;
+            case MPPT_LOW_VOLT_DETECTION:
+                // Check if voltage is low before proceeding
+                if (v_mppt < (V_MARGIN)) {
                     if (zero_samples >= 20) {
-                        DCTL |= INPUT_VOLTAGE_PRESENT;
-                        // Zero integrals to avoid unnecessarily integrated error
-                        v_out_integral = 0;
                         zero_samples = 0;
+                        // Not detecting a voltage, lets wait for the next run
+                        DCTL &= ~INPUT_VOLTAGE_PRESENT;
+                        mppt_state = MPPT_WAIT;
+                        break;
+                    } else {
+                        zero_samples++;
                     }
                 }
-                /* HANDLE ZERO INPUT VOLTAGE */
-            } else {
-                slow_down++;
-            }
+                // Voltage is still good, run algorithm
+                mppt_state = MPPT_ALGORITHM;
+                break;
+            case MPPT_LOW_VOLT_DETECTED:
+                zero_samples++;
+                if (zero_samples >= 20) {
+                    DCTL |= INPUT_VOLTAGE_PRESENT;
+                    // Zero integrals to avoid unnecessarily integrated error
+                    v_out_integral = 0;
+                    zero_samples = 0;
+                    // Lets call the MPPT algorithm and see if we have an output voltage
+                    mppt_state = MPPT_AVERAGE;
+                    break;
+                }
+                mppt_state = MPPT_WAIT;
+                break;
+            case MPPT_AVERAGE:
+                // Get average current and voltage
+                i_mppt = v_mppt = 0;
+                for (i = AVERAGELENGTH; i > 0; i--) {
+                    // Calculate average I-MPPT
+                    i_mppt += i_mppt_samples[i - 1];
+                    // Calculate average V-MPPT
+                    v_mppt += v_mppt_samples[i - 1];
+                }
+                i_mppt = i_mppt >> AVERAGELENGTHBIT;
+                v_mppt = v_mppt >> AVERAGELENGTHBIT;
+                // Now that we have samples, check if voltage present
+                mppt_state = MPPT_LOW_VOLT_DETECTION;
+                break;
+            case MPPT_ALGORITHM:
+                // Run MPPT algorithm (Set duty cycle - TA1CCR1)
+                call_algorithm();
+                mppt_state = MPPT_WAIT;
+                break;
+            default:
+                break;
         }
-        // Should we adjust the output duty cycle this loop?
-        if (DCTL & VOUT_CONTROL) {
-            // Mark that this is complete
-            DCTL &= ~VOUT_CONTROL;
-            if (DCTL & INPUT_VOLTAGE_PRESENT) {
+
+        switch (vout_state) {
+            case VOUT_WAIT:
+                // Sit until we've collected new data
+                if (DCTL & VOUT_CONTROL) {
+                    vout_state = VOUT_LOW_VOLT_HANDLER;
+                }
+                break;
+            case VOUT_LOW_VOLT_HANDLER:
+                if (DCTL & INPUT_VOLTAGE_PRESENT) {
+                    vout_state = VOUT_AVERAGE;
+                } else {
+                    vout_state = VOUT_DISABLE;
+                }
+                break;
+            case VOUT_AVERAGE:
                 v_out = 0;
                 for (i = AVERAGELENGTH; i > 0; i--) {
                     v_out += v_out_samples[i - 1];
                 }
                 v_out = v_out >> AVERAGELENGTHBIT;
-
+                // Call control algorithm after computing average of samples
+                vout_state = VOUT_ALGORITHM;
+            case VOUT_ALGORITHM:
                 // Run Vout Control algorithm
                 TA1CCR2 += adjust_output_duty_cycle(v_out, V_SETPOINT,
                         &v_out_sat, &v_out_integral, v_out_i, Divisor);
                 if (TA1CCR2 >= MAX_DUTY_CYCLE) {
                     TA1CCR2 = MAX_DUTY_CYCLE;
                 }
-            }
+                break;
+            case VOUT_DISABLE:
+                TA1CCR2 = 0;
+                vout_state = VOUT_WAIT;
+                break;
         }
     }
 }
@@ -280,13 +322,11 @@ __interrupt void ADC10_ISR(void) {
         case (0x0):
             i_mppt_samples[sample] = ADC10MEM;
             // Only update Duty cycle at 500Hz
-            if (sample == 0) {
-                DCTL |= MPPT_CONTROL;
-            }
             // Increment sample count, roll over at 3
             sample++;
             if (sample == AVERAGELENGTH) {
                 sample = 0;
+                DCTL |= MPPT_CONTROL;
             }
             break;
         // V-MPPT
@@ -299,7 +339,7 @@ __interrupt void ADC10_ISR(void) {
             // Start ADC conversion
             ADC10CTL0 |= (ENC | ADC10SC);
             break;
-            // V-OUT
+        // V-OUT
         case (0x4):
             v_out_samples[sample] = ADC10MEM;
             // Read	A5 / V-MPPT
@@ -357,7 +397,7 @@ void change_algorithm() {
             break;
         case MPPT_BETA:
             break;
-        case DEFAULT:
+        default:
             break;
     }
 }
@@ -368,13 +408,28 @@ void reset_algorithm() {
             sweep_reset(&DCTL);
             break;
         case MPPT_PERTURBOBSERVE:
-            //perturb_and_observe_reset(&DCTL);
-            mppt_duty_cycle=80;
+            perturb_and_observe_reset();
             break;
         case MPPT_BETA:
             //beta_reset(&DCTL);
             break;
-        case DEFAULT:
+        default:
+            break;
+    }
+}
+
+void call_algorithm() {
+    switch (algorithm) {
+        case MPPT_SWEEP:
+            TA1CCR1 = sweep(&DCTL);
+            break;
+        case MPPT_PERTURBOBSERVE:
+            TA1CCR1 = perturb_and_observe(&DCTL);
+            break;
+        case MPPT_BETA:
+//          TA1CCR1 = beta(&DCTL);
+            break;
+        default:
             break;
     }
 }

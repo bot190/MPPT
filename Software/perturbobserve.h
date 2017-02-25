@@ -19,12 +19,14 @@
 // Defines
 // Perturb duty cycle by 2/320 = 0.0625%
 #define PERTURBINC 4
-#define PERTURBDEADZONE 1000
+#define PERTURBDEADZONE 0
 
 // Functions
 int perturb_and_observe(volatile char *DCTL);
+void perturb_and_observe_reset(void);
 
 // Global Variables
 unsigned long prev_power;
+unsigned char direction;
 
 #endif /* PERTURBOBSERVE_H */
