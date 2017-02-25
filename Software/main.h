@@ -17,12 +17,12 @@
  *****************************************************************************/
 
 // DEFINES
-#define AVERAGELENGTH 8
-#define AVERAGELENGTHBIT 3
+#define AVERAGE_LENGTH 8
+#define AVERAGE_LENGTH_BIT 3
 
 // Update frequency divider
 #define ALG_FREQUENCY 50
-#define MPPT_LIMITER ((12000 / LOW_FQ_CLOCK / AVERAGELENGTH) / ALG_FREQUENCY)
+#define MPPT_LIMITER ((12000 / LOW_FQ_CLOCK / AVERAGE_LENGTH) / ALG_FREQUENCY)
 #define LOW_FQ_CLOCK 3
 
 // Approximately 12V, with 750k and 75k resistors
@@ -36,9 +36,6 @@
 #define MPPT_CONTROL 0x1
 #define VOUT_CONTROL 0x2
 #define INPUT_VOLTAGE_PRESENT 0x4
-#define SWEEP_COMPLETE 0x8
-#define PERTURB_DIRECTION 0x16
-
 
 #define RESET_BUTTON_PRESSED 0x1
 #define ALGORITHM_BUTTON_PRESSED 0x2
@@ -48,7 +45,7 @@
 // Store V-OUT from ADC
 extern unsigned int v_out;
 // Store V-OUT samples
-extern int v_out_samples[AVERAGELENGTH];
+extern int v_out_samples[AVERAGE_LENGTH];
 // Saturation-Flag for integral computation (part of PID)
 extern signed char v_out_sat;
 // Value of Vout integral computation
@@ -58,11 +55,11 @@ extern const int v_out_i;
 // Store V-MPPT average from ADC
 extern unsigned int v_mppt;
 // Store V-MPPT samples
-extern int v_mppt_samples[AVERAGELENGTH];
+extern int v_mppt_samples[AVERAGE_LENGTH];
 // Store I-MPPT average from ADC
 extern unsigned int i_mppt;
 // Store I-MPPT samples
-extern int i_mppt_samples[AVERAGELENGTH];
+extern int i_mppt_samples[AVERAGE_LENGTH];
 
 // Proportional Constant = 1/2^Divisor
 extern const int Divisor;
@@ -75,6 +72,7 @@ extern int mppt_duty_cycle;
 
 // Counter for slowing MPPT loop
 unsigned int slow_down;
+unsigned int periodic_timer_count;
 
 // Variables used by MPPT methods
 extern unsigned long power;
@@ -83,13 +81,12 @@ extern unsigned long power;
 // 0x1   - MPPT
 // 0x2   - VOUT
 // 0x4   - Input Voltage present?
-// 0x8   - Sweep Complete (0 no, 1 yes)
-// 0x16  - Perturb Direction (0 down, 1 up)
-// 0x32  - Reset Button Pressed
-// 0x64  - Change Button Pressed
+// 0x8   -
+// 0x16  -
+// 0x32  -
+// 0x64  -
 // 0x128 -
 extern volatile char DCTL;
-
 
 // Track button status
 // 0x1  - Reset Button

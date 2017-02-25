@@ -28,5 +28,6 @@ void sweep_reset(volatile char *DCTL);
 // Variables
 unsigned long max_power;
 int max_power_duty_cycle;
+char sweep_complete;
 
 #endif /* SWEEP_H */

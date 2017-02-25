@@ -27,7 +27,7 @@ int sweep(volatile char *DCTL) {
         sweep_reset(DCTL);
     }
     // Only need to do something if sweep is not complete
-    if ((*DCTL & SWEEP_COMPLETE) == 0 ) {
+    if (sweep_complete == 0 ) {
         power = (long) i_mppt * v_mppt;
         // New power > old power, save duty cycle
         if (power > max_power) {
@@ -37,7 +37,7 @@ int sweep(volatile char *DCTL) {
         // We've reached 100% duty cycle, mark as complete,
         // Set duty cycle to maximum power point
         if (mppt_duty_cycle == 320) {
-            *DCTL |= SWEEP_COMPLETE;
+            sweep_complete = 1;
             mppt_duty_cycle = max_power_duty_cycle;
         } else {
             // Haven't completed sweep yet, increment duty cycle
@@ -63,5 +63,5 @@ int sweep(volatile char *DCTL) {
 void sweep_reset(volatile char *DCTL) {
     max_power = 0;
     mppt_duty_cycle=80;
-    *DCTL &= ~SWEEP_COMPLETE;
+    sweep_complete = 0;
 }
