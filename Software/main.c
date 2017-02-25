@@ -27,7 +27,7 @@
 // Store V-OUT from ADC
 unsigned int v_out;
 // Store V-OUT samples
-int v_out_samples[AVERAGELENGTH];
+int v_out_samples[AVERAGE_LENGTH];
 // Saturation-Flag for integral computation (part of PID)
 signed char v_out_sat;
 // Value of Vout integral computation
@@ -37,11 +37,11 @@ const int v_out_i = 1024;
 // Store V-MPPT average from ADC
 unsigned int v_mppt;
 // Store V-MPPT samples
-int v_mppt_samples[AVERAGELENGTH];
+int v_mppt_samples[AVERAGE_LENGTH];
 // Store I-MPPT average from ADC
 unsigned int i_mppt;
 // Store I-MPPT samples
-int i_mppt_samples[AVERAGELENGTH];
+int i_mppt_samples[AVERAGE_LENGTH];
 
 // Proportional Constant = 1/2^Divisor
 const int Divisor = 3;
@@ -156,9 +156,9 @@ void main(void) {
      * Configure Timer0 - ACLK
      */
     // Use ACLK, /1 divider, Up mode
-    TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
+    TA0CTL = (TASSEL_1 | ID_0 | MC_2 | TAIE);
     // 12KHz clock, into 3 gives 4KHz
-    TA0CCR0 = (LOW_FQ_CLOCK);
+    TA0CCR1 = (LOW_FQ_CLOCK);
 
     //Global Interrupt Enable
     _BIS_SR(GIE);
@@ -231,14 +231,14 @@ void main(void) {
             case MPPT_AVERAGE:
                 // Get average current and voltage
                 i_mppt = v_mppt = 0;
-                for (i = AVERAGELENGTH; i > 0; i--) {
+                for (i = AVERAGE_LENGTH; i > 0; i--) {
                     // Calculate average I-MPPT
                     i_mppt += i_mppt_samples[i - 1];
                     // Calculate average V-MPPT
                     v_mppt += v_mppt_samples[i - 1];
                 }
-                i_mppt = i_mppt >> AVERAGELENGTHBIT;
-                v_mppt = v_mppt >> AVERAGELENGTHBIT;
+                i_mppt = i_mppt >> AVERAGE_LENGTH_BIT;
+                v_mppt = v_mppt >> AVERAGE_LENGTH_BIT;
                 // Now that we have samples, check if voltage present
                 mppt_state = MPPT_LOW_VOLT_DETECTION;
                 break;
@@ -267,10 +267,10 @@ void main(void) {
                 break;
             case VOUT_AVERAGE:
                 v_out = 0;
-                for (i = AVERAGELENGTH; i > 0; i--) {
+                for (i = AVERAGE_LENGTH; i > 0; i--) {
                     v_out += v_out_samples[i - 1];
                 }
-                v_out = v_out >> AVERAGELENGTHBIT;
+                v_out = v_out >> AVERAGE_LENGTH_BIT;
                 // Call control algorithm after computing average of samples
                 vout_state = VOUT_ALGORITHM;
             case VOUT_ALGORITHM:
@@ -296,16 +296,20 @@ void main(void) {
  */
 #pragma vector=TIMER0_A1_VECTOR
 __interrupt void timerA0_ISR(void) {
-    if (TA0IV == 0xA) {
-        /*
-         * Configure ADC to measure V-OUT
-         */
-        // Read	A4 / V-OUT
-        ADC10CTL0 &= ~ENC;
-        ADC10CTL1 &= 0xFFF;
-        ADC10CTL1 |= INCH_4;
-        // Start ADC conversion
-        ADC10CTL0 |= (ENC | ADC10SC);
+    switch (TA0IV){
+        case 0x2:
+            // TACCR1
+            // Read	A4 / V-OUT
+            ADC10CTL0 &= ~ENC;
+            ADC10CTL1 &= 0xFFF;
+            ADC10CTL1 |= INCH_4;
+            // Start ADC conversion
+            ADC10CTL0 |= (ENC | ADC10SC);
+            break;
+        case 0xA:
+            // Overflow
+            periodic_timer_count++;
+            break;
     }
 }
 
@@ -324,7 +328,7 @@ __interrupt void ADC10_ISR(void) {
             // Only update Duty cycle at 500Hz
             // Increment sample count, roll over at 3
             sample++;
-            if (sample == AVERAGELENGTH) {
+            if (sample == AVERAGE_LENGTH) {
                 sample = 0;
                 DCTL |= MPPT_CONTROL;
             }

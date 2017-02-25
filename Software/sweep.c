@@ -20,6 +20,12 @@
 
 
 int sweep(volatile char *DCTL) {
+
+    if (periodic_timer_count >= SWEEP_INTERVAL) {
+        // Reset timer and sweep again
+        periodic_timer_count = 0;
+        sweep_reset(DCTL);
+    }
     // Only need to do something if sweep is not complete
     if ((*DCTL & SWEEP_COMPLETE) == 0 ) {
         power = (long) i_mppt * v_mppt;
