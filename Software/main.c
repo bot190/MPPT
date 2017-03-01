@@ -157,6 +157,8 @@ void main(void) {
      */
     // Use ACLK, /1 divider, Up mode
     TA0CTL = (TASSEL_1 | ID_0 | MC_2 | TAIE);
+    // Enable Compare interrupts for CCR1
+    TA0CCTL1 = CCIE;
     // 12KHz clock, into 3 gives 4KHz
     TA0CCR1 = (LOW_FQ_CLOCK);
 
