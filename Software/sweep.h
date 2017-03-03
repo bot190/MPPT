@@ -18,8 +18,8 @@
 // Defines
 // Increment duty cycle by 2/320 = 0.0625%
 #define SWEEPINC 2
-// Sweeping interval, calculated as Seconds / (2^16 / 12000KHz)
-#define SWEEP_INTERVAL 11
+// Sweeping interval, calculated as 4KHz / 5 seconds)
+#define SWEEP_INTERVAL 20000
 
 // Functions
 int sweep(volatile char *DCTL);

@@ -61,7 +61,7 @@ volatile char BUTTONS;
 unsigned long power;
 
 // Define algorithm variable to choose MPPT algorithm
-enum mppt_algorithm_type_enum algorithm = MPPT_PERTURBOBSERVE;
+enum mppt_algorithm_type_enum algorithm = MPPT_SWEEP;
 
 // State variable for MPPT state machine
 enum mppt_states_enum mppt_state = MPPT_WAIT;
@@ -156,11 +156,9 @@ void main(void) {
      * Configure Timer0 - ACLK
      */
     // Use ACLK, /1 divider, Up mode
-    TA0CTL = (TASSEL_1 | ID_0 | MC_2 | TAIE);
-    // Enable Compare interrupts for CCR1
-    TA0CCTL1 = CCIE;
+    TA0CTL = (TASSEL_1 | ID_0 | MC_1 | TAIE);
     // 12KHz clock, into 3 gives 4KHz
-    TA0CCR1 = (LOW_FQ_CLOCK);
+    TA0CCR0 = (LOW_FQ_CLOCK);
 
     //Global Interrupt Enable
     _BIS_SR(GIE);
@@ -298,20 +296,15 @@ void main(void) {
  */
 #pragma vector=TIMER0_A1_VECTOR
 __interrupt void timerA0_ISR(void) {
-    switch (TA0IV){
-        case 0x2:
-            // TACCR1
-            // Read	A4 / V-OUT
-            ADC10CTL0 &= ~ENC;
-            ADC10CTL1 &= 0xFFF;
-            ADC10CTL1 |= INCH_4;
-            // Start ADC conversion
-            ADC10CTL0 |= (ENC | ADC10SC);
-            break;
-        case 0xA:
-            // Overflow
-            periodic_timer_count++;
-            break;
+    if (TA0IV == 0xA) {
+        // TACCR1
+        // Read	A4 / V-OUT
+        ADC10CTL0 &= ~ENC;
+        ADC10CTL1 &= 0xFFF;
+        ADC10CTL1 |= INCH_4;
+        // Start ADC conversion
+        ADC10CTL0 |= (ENC | ADC10SC);
+        periodic_timer_count++;
     }
 }
 

@@ -72,7 +72,7 @@ extern int mppt_duty_cycle;
 
 // Counter for slowing MPPT loop
 unsigned int slow_down;
-unsigned int periodic_timer_count;
+unsigned long periodic_timer_count;
 
 // Variables used by MPPT methods
 extern unsigned long power;
