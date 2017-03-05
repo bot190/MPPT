@@ -222,7 +222,7 @@ void main(void) {
                     // Zero integrals to avoid unnecessarily integrated error
                     v_out_integral = 0;
                     zero_samples = 0;
-                    // Lets call the MPPT algorithm and see if we have an output voltage
+                    // Call MPPT algorithm check for output voltage
                     mppt_state = MPPT_AVERAGE;
                     break;
                 }
@@ -386,6 +386,10 @@ int adjust_output_duty_cycle(int input, int setpoint, signed char *sat,
     return x;
 }
 
+/** \brief Changes the current algorithm
+ *
+ * This function cycles through the implemented algorithms.
+ */
 void change_algorithm() {
     switch (algorithm) {
         case MPPT_SWEEP:
@@ -401,6 +405,10 @@ void change_algorithm() {
     }
 }
 
+/** \brief Calls algorithm reset function
+ *
+ * This function calls the chosen algorithm's reset function
+ */
 void reset_algorithm() {
     switch (algorithm) {
         case MPPT_SWEEP:
@@ -417,6 +425,11 @@ void reset_algorithm() {
     }
 }
 
+
+/** \brief Calls algorithm function
+ *
+ * This function calls the chosen algorithm's main function
+ */
 void call_algorithm() {
     switch (algorithm) {
         case MPPT_SWEEP:
@@ -433,6 +446,11 @@ void call_algorithm() {
     }
 }
 
+/** \brief Handles debouncing buttons
+ *
+ * This function handles debouncing buttons and calling the appropriate
+ * button handler
+ */
 void button_handler() {
     //Button handling
     if ((P1IN & BIT1) == 0) {
