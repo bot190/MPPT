@@ -13,7 +13,6 @@
  * 	Andrew Flynn
  *
  *****************************************************************************/
-
 // Includes
 #include <msp430.h>
 #include <limits.h>
@@ -22,8 +21,7 @@
 //#include "beta.h"
 #include "perturbobserve.h"
 
-// Define Global Variables
-
+/* Define Global Variables */
 // Store V-OUT from ADC
 unsigned int v_out;
 // Store V-OUT samples
@@ -72,7 +70,6 @@ void main(void) {
 
     // Stop watchdog timer
     WDTCTL = WDTPW | WDTHOLD;
-
     /*
      * Configure Clocks
      */
@@ -424,7 +421,6 @@ void reset_algorithm() {
             break;
     }
 }
-
 
 /** \brief Calls algorithm function
  *
